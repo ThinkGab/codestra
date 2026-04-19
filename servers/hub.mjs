@@ -73,15 +73,22 @@ function generateId() {
   return crypto.randomBytes(4).toString("hex");
 }
 
+function isLanUrl(raw) {
+  try {
+    const { hostname } = new URL(raw);
+    return /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostname);
+  } catch { return false; }
+}
+
 async function pushToWorker(worker, msg) {
   if (!worker.callback_url) return false;
   try {
+    // No Authorization header on outbound push — workers don't need to
+    // authenticate the hub, and forwarding SECRET to callback_url would
+    // allow a malicious worker to exfiltrate the shared secret.
     const res = await fetch(worker.callback_url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${SECRET}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: msg.id,
         from: msg.from,
@@ -108,6 +115,10 @@ const routes = {
   // Register / update a worker
   "POST /workers": async (req, res) => {
     const body = await readBody(req);
+    // Reject non-LAN callback_url to prevent SSRF / secret exfiltration
+    if (body.callback_url && !isLanUrl(body.callback_url)) {
+      return json(res, 400, { error: "callback_url must be a LAN address" });
+    }
     const id = body.id || generateId();
     const worker = {
       id,
