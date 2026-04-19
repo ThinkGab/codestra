@@ -18,7 +18,7 @@ Parametri:
 **Caso A — Solo porta specificata (o nessun argomento):**
 Usa il tool `swarm_hub_start` con `port=$0`.
 - Se nessun argomento: chiama `swarm_hub_start` senza parametri (usa default 7800).
-- Se solo `$0` fornito: chiama `swarm_hub_start` con `port=$0`.
+- Se solo `$0` fornito: chiama `swarm_hub_start` con `port` impostato al valore numerico di `$0` (es. `port: 7800` come numero intero, non stringa).
 - Il tool restituisce un comando bash: eseguilo via Bash tool.
 
 **Caso B — Porta e IP specificati ($1 presente):**
