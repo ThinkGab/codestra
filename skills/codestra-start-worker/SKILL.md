@@ -40,7 +40,7 @@ Dopo l'aggiornamento, l'utente deve riavviare Claude Code per applicare la nuova
 Una volta verificato che `SWARM_HUB_URL` punta all'hub corretto:
 
 1. Usa il tool `swarm_register` con:
-   - `role`: `"worker"`
+   - `role`: `"worker"` (oppure ometti se `SWARM_ROLE` è già configurata nell'env)
    - `task`: breve descrizione del lavoro che questo worker svolgerà (chiedere all'utente se non noto)
 
 2. Verifica la risposta del tool — deve contenere un worker ID assegnato dall'hub.
