@@ -16,11 +16,13 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import http from "node:http";
 
 const HUB_URL = process.env.SWARM_HUB_URL || "http://localhost:7800";
 const SECRET = process.env.SWARM_SECRET || "";
 const ROLE = process.env.SWARM_ROLE || "worker";
 const INSTANCE_ID = process.env.SWARM_ID || "";
+const WORKER_HOST = process.env.SWARM_HOST ?? "localhost";
 
 // ── Hub client ──────────────────────────────────────────────────────────────
 
@@ -295,6 +297,76 @@ server.tool(
     };
   }
 );
+
+// ── Worker HTTP Server ──────────────────────────────────────────────────────
+
+function json(res, status, data) {
+  const body = JSON.stringify(data);
+  res.writeHead(status, {
+    "Content-Type": "application/json",
+    "Content-Length": Buffer.byteLength(body),
+  });
+  res.end(body);
+}
+
+function workerRequestHandler(req, res) {
+  // Auth check (D-09): replica authorize() da hub.mjs
+  if (SECRET) {
+    const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+    if (token !== SECRET) {
+      json(res, 401, { error: "Unauthorized — set SWARM_SECRET" });
+      return;
+    }
+  }
+
+  // GET /health (Claude's Discretion — health check endpoint)
+  if (req.method === "GET" && req.url === "/health") {
+    json(res, 200, { ok: true, role: "worker" });
+    return;
+  }
+
+  // POST / — ricevi messaggio push dall'hub (D-05, D-06)
+  if (req.method === "POST" && req.url === "/") {
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => {
+      const body = Buffer.concat(chunks).toString();
+      process.stdout.write(`[worker-push] ${body}\n`);
+      json(res, 200, { ok: true });
+    });
+    req.on("error", (err) => {
+      json(res, 500, { error: err.message });
+    });
+    return;
+  }
+
+  // 404 per tutto il resto
+  res.writeHead(404);
+  res.end();
+}
+
+/**
+ * Avvia il worker HTTP server in-process.
+ * @param {number} [port=0] - Porta (0 = OS-assigned, D-08)
+ * @returns {Promise<{server: http.Server, port: number}>}
+ */
+function startWorkerServer(port = 0) {
+  return new Promise((resolve, reject) => {
+    const srv = http.createServer(workerRequestHandler);
+    srv.listen(port, WORKER_HOST, () => {
+      resolve({ server: srv, port: srv.address().port });
+    });
+    srv.on("error", (err) => {
+      if (err.code === "EADDRINUSE") {
+        reject(new Error(
+          `Worker port ${port} already in use. Omit workerPort to use an OS-assigned port.`
+        ));
+      } else {
+        reject(err);
+      }
+    });
+  });
+}
 
 // ── Start ───────────────────────────────────────────────────────────────────
 
