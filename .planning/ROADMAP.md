@@ -41,7 +41,11 @@ Plans:
   2. The worker's actual bound port is discoverable after server start (OS-assigned port 0 resolves to a real port)
   3. The `swarm_register` call to the hub includes a `callback_url` field containing `http://<host>:<port>`
   4. Worker HTTP server stays running and can receive inbound HTTP requests on its bound port
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Estende mcp-server.mjs con HTTP server in-process, workerRequestHandler, startWorkerServer, modifica swarm_register
+- [ ] 02-02-PLAN.md — Aggiorna SKILL.md codestra-start-worker: attiva workerPort, rimuove note placeholder Fase 1
 
 ### Phase 3: Hub Push Delivery
 **Goal**: The hub delivers messages to workers via HTTP POST to their callback_url, falling back to the polling model when unavailable or unreachable
