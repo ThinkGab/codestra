@@ -1,0 +1,10 @@
+{
+  "name": "claude-swarm",
+  "version": "0.1.0",
+  "description": "Orchestrate multiple Claude Code instances via MCP with Hub & Spoke architecture. Spawn workers, send messages, and coordinate tasks across LAN.",
+  "author": {
+    "name": "Gabriele Di Lelio"
+  },
+  "keywords": ["orchestration", "multi-agent", "swarm", "mcp", "networking"],
+  "mcpServers": "./.mcp.json"
+}

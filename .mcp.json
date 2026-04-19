@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "claude-swarm": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/servers/mcp-server.mjs"],
+      "env": {
+        "SWARM_HUB_URL": "${SWARM_HUB_URL:-http://localhost:7800}",
+        "SWARM_SECRET": "${SWARM_SECRET}",
+        "SWARM_ROLE": "${SWARM_ROLE:-worker}",
+        "SWARM_ID": "${SWARM_ID}"
+      }
+    }
+  }
+}

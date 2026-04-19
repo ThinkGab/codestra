@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e94560"/>
+      <stop offset="100%" style="stop-color:#f5a623"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d2ff"/>
+      <stop offset="100%" style="stop-color:#7b2ff7"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="190" fill="url(#bgGrad)" stroke="url(#glowGrad)" stroke-width="3"/>
+
+  <!-- ═══ IL MAESTRO ═══ -->
+
+  <!-- Torso / jacket -->
+  <path d="M 170 228 Q 175 185 200 172 Q 225 185 230 228 Z" fill="#1a1a2e" stroke="#333" stroke-width="0.8"/>
+  <!-- White shirt front -->
+  <path d="M 190 190 L 200 175 L 210 190 L 205 228 L 195 228 Z" fill="#e8e8e8" opacity="0.6"/>
+  <!-- Jacket lapels -->
+  <path d="M 182 200 L 198 180 L 195 215 Z" fill="#e94560" opacity="0.7"/>
+  <path d="M 218 200 L 202 180 L 205 215 Z" fill="#e94560" opacity="0.7"/>
+  <!-- Bow tie -->
+  <path d="M 192 180 L 200 184 L 208 180 L 200 176 Z" fill="#f5a623"/>
+  <circle cx="200" cy="180" r="2" fill="#e94560"/>
+
+  <!-- Head -->
+  <ellipse cx="200" cy="148" rx="22" ry="24" fill="#ffd5c2"/>
+
+  <!-- ═══ LONG CURLY WHITE HAIR ═══ -->
+  <!-- Main hair mass - voluminous, curly, flowing past shoulders -->
+  <g fill="#e8e8e8" stroke="#ccc" stroke-width="0.5">
+    <!-- Top of head hair volume -->
+    <ellipse cx="200" cy="125" rx="32" ry="14" />
+    <!-- Left side flowing hair -->
+    <path d="M 170 130 Q 158 135 152 150 Q 148 165 155 180 Q 150 190 148 205 Q 145 215 152 225 Q 158 218 155 205 Q 158 190 162 178 Q 155 165 160 150 Q 165 140 170 135 Z"/>
+    <!-- More left curls -->
+    <path d="M 165 140 Q 155 148 150 162 Q 146 175 152 188 Q 148 198 145 212 Q 148 220 155 215 Q 152 200 155 188 Q 150 175 155 162 Q 160 150 168 143 Z"/>
+    <!-- Right side flowing hair -->
+    <path d="M 230 130 Q 242 135 248 150 Q 252 165 245 180 Q 250 190 252 205 Q 255 215 248 225 Q 242 218 245 205 Q 242 190 238 178 Q 245 165 240 150 Q 235 140 230 135 Z"/>
+    <!-- More right curls -->
+    <path d="M 235 140 Q 245 148 250 162 Q 254 175 248 188 Q 252 198 255 212 Q 252 220 245 215 Q 248 200 245 188 Q 250 175 245 162 Q 240 150 232 143 Z"/>
+    <!-- Back hair behind head -->
+    <path d="M 172 128 Q 168 120 175 112 Q 185 105 200 103 Q 215 105 225 112 Q 232 120 228 128 Z"/>
+    <!-- Extra curl left -->
+    <path d="M 160 155 Q 152 160 150 172 Q 148 180 153 188" fill="none" stroke="#ddd" stroke-width="2"/>
+    <!-- Extra curl right -->
+    <path d="M 240 155 Q 248 160 250 172 Q 252 180 247 188" fill="none" stroke="#ddd" stroke-width="2"/>
+    <!-- Small curly wisps on forehead -->
+    <path d="M 180 124 Q 178 118 183 115 Q 190 113 192 118" fill="none" stroke="#ddd" stroke-width="1.5"/>
+    <path d="M 208 118 Q 210 113 217 115 Q 222 118 220 124" fill="none" stroke="#ddd" stroke-width="1.5"/>
+  </g>
+
+  <!-- ═══ ROUND GLASSES ═══ -->
+  <!-- Left lens -->
+  <circle cx="190" cy="148" r="10" fill="none" stroke="#f5a623" stroke-width="2" opacity="0.8"/>
+  <circle cx="190" cy="148" r="10" fill="#87ceeb" opacity="0.08"/>
+  <!-- Right lens -->
+  <circle cx="210" cy="148" r="10" fill="none" stroke="#f5a623" stroke-width="2" opacity="0.8"/>
+  <circle cx="210" cy="148" r="10" fill="#87ceeb" opacity="0.08"/>
+  <!-- Bridge -->
+  <path d="M 200 148 Q 200 144 200 148" stroke="#f5a623" stroke-width="1.5" fill="none"/>
+  <line x1="200" y1="146" x2="200" y2="148" stroke="#f5a623" stroke-width="1.5"/>
+  <!-- Temples (arms of glasses into hair) -->
+  <line x1="180" y1="147" x2="170" y2="145" stroke="#f5a623" stroke-width="1.2" opacity="0.6"/>
+  <line x1="220" y1="147" x2="230" y2="145" stroke="#f5a623" stroke-width="1.2" opacity="0.6"/>
+
+  <!-- Eyes behind glasses - kind, squinting with joy -->
+  <path d="M 186 147 Q 190 144 194 147" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 206 147 Q 210 144 214 147" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Tiny eye sparkle -->
+  <circle cx="190" cy="146" r="1" fill="#1a1a2e"/>
+  <circle cx="210" cy="146" r="1" fill="#1a1a2e"/>
+
+  <!-- Warm big smile -->
+  <path d="M 188 158 Q 194 168 200 168 Q 206 168 212 158" stroke="#c4846b" stroke-width="2.5" fill="#fff" fill-opacity="0.3" stroke-linecap="round"/>
+  <!-- Rosy cheeks -->
+  <circle cx="180" cy="156" r="5" fill="#e8a090" opacity="0.4"/>
+  <circle cx="220" cy="156" r="5" fill="#e8a090" opacity="0.4"/>
+
+  <!-- Nose - friendly round -->
+  <path d="M 198 150 Q 200 155 202 150" stroke="#d4a690" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Bushy friendly eyebrows -->
+  <path d="M 183 139 Q 190 136 197 139" stroke="#ccc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M 203 139 Q 210 136 217 139" stroke="#ccc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- ═══ ARMS - dramatic conducting pose ═══ -->
+  <!-- Left arm - raised high, expressive -->
+  <path d="M 170 200 Q 135 175 115 135" stroke="#ffd5c2" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <!-- Left hand - fingers spread expressively -->
+  <circle cx="113" cy="132" r="6" fill="#ffd5c2"/>
+  <line x1="108" y1="126" x2="104" y2="118" stroke="#ffd5c2" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="112" y1="125" x2="110" y2="116" stroke="#ffd5c2" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="116" y1="126" x2="116" y2="117" stroke="#ffd5c2" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="120" y1="128" x2="122" y2="120" stroke="#ffd5c2" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Right arm - holding baton elegantly -->
+  <path d="M 230 200 Q 260 165 278 125" stroke="#ffd5c2" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <!-- Right hand -->
+  <circle cx="280" cy="122" r="6" fill="#ffd5c2"/>
+
+  <!-- Baton with glow -->
+  <line x1="283" y1="117" x2="325" y2="75" stroke="url(#glowGrad)" stroke-width="3.5" stroke-linecap="round" filter="url(#glow)"/>
+  <circle cx="327" cy="73" r="4" fill="#00d2ff" filter="url(#glow)" opacity="0.9"/>
+  <!-- Baton trail effect -->
+  <path d="M 327 73 Q 335 65 340 70 Q 338 78 330 75" stroke="#7b2ff7" stroke-width="1" fill="none" opacity="0.5" filter="url(#glow)"/>
+
+  <!-- ═══ FLOATING CODE SYMBOLS ═══ -->
+  <g transform="translate(90, 95) rotate(-15)" filter="url(#glow)" opacity="0.8">
+    <text font-family="monospace" font-size="24" fill="#00d2ff" font-weight="bold">{ }</text>
+  </g>
+  <g transform="translate(280, 85) rotate(10)" filter="url(#glow)" opacity="0.8">
+    <text font-family="monospace" font-size="20" fill="#7b2ff7" font-weight="bold">&lt;/&gt;</text>
+  </g>
+  <g transform="translate(75, 245) rotate(-5)" filter="url(#glow)" opacity="0.7">
+    <text font-family="monospace" font-size="22" fill="#f5a623" font-weight="bold">=&gt;</text>
+  </g>
+  <g transform="translate(310, 165)" filter="url(#glow)" opacity="0.7">
+    <text font-size="28" fill="#e94560">♪</text>
+  </g>
+  <g transform="translate(65, 175) rotate(5)" filter="url(#glow)" opacity="0.6">
+    <text font-family="monospace" font-size="20" fill="#00d2ff" font-weight="bold">( )</text>
+  </g>
+  <g transform="translate(125, 275)" filter="url(#glow)" opacity="0.6">
+    <text font-size="22" fill="#7b2ff7">♫</text>
+  </g>
+
+  <!-- Sparkles -->
+  <circle cx="330" cy="100" r="2" fill="#f5a623" opacity="0.8">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="85" cy="130" r="2" fill="#00d2ff" opacity="0.8">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="310" cy="210" r="1.5" fill="#e94560" opacity="0.8">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="115" cy="305" r="2" fill="#7b2ff7" opacity="0.7">
+    <animate attributeName="opacity" values="0.3;0.9;0.3" dur="2.2s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Podium -->
+  <path d="M 155 232 L 160 265 L 240 265 L 245 232 Z" fill="#0f3460" stroke="#1a1a2e" stroke-width="1"/>
+  <rect x="150" y="263" width="100" height="8" rx="2" fill="#16213e" stroke="#333" stroke-width="0.5"/>
+
+  <!-- Codestra text -->
+  <text x="200" y="315" text-anchor="middle" font-family="'Georgia', serif" font-size="38" font-weight="bold" fill="url(#accentGrad)" letter-spacing="3">CODESTRA</text>
+  <text x="200" y="340" text-anchor="middle" font-family="'Courier New', monospace" font-size="13" fill="#aaa" letter-spacing="2">orchestrate your code</text>
+</svg>

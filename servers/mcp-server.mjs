@@ -1,0 +1,302 @@
+#!/usr/bin/env node
+/**
+ * Claude Swarm — MCP Server (stdio transport)
+ *
+ * Bridges Claude Code ↔ Swarm Hub.
+ * Each Claude Code instance runs this as a local MCP server.
+ * It registers itself with the Hub and exposes orchestration tools.
+ *
+ * Environment:
+ *   SWARM_HUB_URL  — Hub URL (default http://localhost:7800)
+ *   SWARM_SECRET   — shared secret (must match the hub)
+ *   SWARM_ROLE     — this instance's role: "leader" or "worker" (default "worker")
+ *   SWARM_ID       — optional fixed ID for this instance
+ */
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+const HUB_URL = process.env.SWARM_HUB_URL || "http://localhost:7800";
+const SECRET = process.env.SWARM_SECRET || "";
+const ROLE = process.env.SWARM_ROLE || "worker";
+const INSTANCE_ID = process.env.SWARM_ID || "";
+
+// ── Hub client ──────────────────────────────────────────────────────────────
+
+async function hubFetch(path, options = {}) {
+  const url = `${HUB_URL}${path}`;
+  const headers = { "Content-Type": "application/json" };
+  if (SECRET) headers["Authorization"] = `Bearer ${SECRET}`;
+  const res = await fetch(url, { ...options, headers: { ...headers, ...options.headers } });
+  return res.json();
+}
+
+// ── MCP Server ──────────────────────────────────────────────────────────────
+
+const server = new McpServer({
+  name: "claude-swarm",
+  version: "0.1.0",
+});
+
+// ── Tool: hub_start ─────────────────────────────────────────────────────────
+
+server.tool(
+  "swarm_hub_start",
+  "Start the Swarm Hub server as a background process. Run this once before using other swarm tools. The hub listens on the configured port (default 7800) and coordinates all workers.",
+  {
+    port: z.number().optional().describe("Port to listen on (default 7800)"),
+    secret: z.string().optional().describe("Shared secret for auth (recommended on LAN)"),
+  },
+  async ({ port, secret }) => {
+    const env = [];
+    if (port) env.push(`SWARM_PORT=${port}`);
+    if (secret) env.push(`SWARM_SECRET=${secret}`);
+
+    // We return a shell command for Claude Code to execute via Bash
+    const hubPath = new URL("./hub.mjs", import.meta.url).pathname;
+    const cmd = `${env.join(" ")} nohup node ${hubPath} > /tmp/swarm-hub.log 2>&1 &`;
+
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `Run this command to start the hub:\n\n\`\`\`bash\n${cmd}\n\`\`\``,
+            `\nThen verify with: \`curl http://localhost:${port || 7800}/health\``,
+            `\nHub logs: \`tail -f /tmp/swarm-hub.log\``,
+          ].join("\n"),
+        },
+      ],
+    };
+  }
+);
+
+// ── Tool: hub_status ────────────────────────────────────────────────────────
+
+server.tool(
+  "swarm_hub_status",
+  "Check if the Swarm Hub is running and get stats (worker count, uptime).",
+  {},
+  async () => {
+    try {
+      const data = await hubFetch("/health");
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+      };
+    } catch (err) {
+      return {
+        content: [{ type: "text", text: `Hub not reachable at ${HUB_URL}: ${err.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// ── Tool: register_self ─────────────────────────────────────────────────────
+
+server.tool(
+  "swarm_register",
+  "Register this Claude Code instance with the hub. Call this at session start so other instances can discover you.",
+  {
+    role: z.enum(["leader", "worker"]).optional().describe("Role of this instance (default from env)"),
+    task: z.string().optional().describe("Brief description of what this instance is working on"),
+  },
+  async ({ role, task }) => {
+    const body = {
+      role: role || ROLE,
+      task: task || "idle",
+      cwd: process.cwd(),
+    };
+    if (INSTANCE_ID) body.id = INSTANCE_ID;
+
+    const data = await hubFetch("/workers", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Registered as ${data.worker?.role} with ID: ${data.worker?.id}\n\n${JSON.stringify(data.worker, null, 2)}`,
+        },
+      ],
+    };
+  }
+);
+
+// ── Tool: spawn_worker ──────────────────────────────────────────────────────
+
+server.tool(
+  "swarm_spawn_worker",
+  "Spawn a new Claude Code sub-instance as a worker with a specific task. Returns a shell command to run in a new terminal. The worker auto-registers with the hub.",
+  {
+    task: z.string().describe("Task description / prompt for the new worker instance"),
+    cwd: z.string().optional().describe("Working directory for the worker (default: current)"),
+    id: z.string().optional().describe("Custom worker ID (auto-generated if omitted)"),
+  },
+  async ({ task, cwd, id }) => {
+    const workerId = id || `w-${Date.now().toString(36)}`;
+    const workDir = cwd || ".";
+    const envVars = [
+      `SWARM_HUB_URL="${HUB_URL}"`,
+      `SWARM_ROLE="worker"`,
+      `SWARM_ID="${workerId}"`,
+    ];
+    if (SECRET) envVars.push(`SWARM_SECRET="${SECRET}"`);
+
+    const escapedTask = task.replace(/"/g, '\\"').replace(/\n/g, "\\n");
+
+    const cmd = [
+      `# Worker ${workerId} — run in a new terminal`,
+      `cd ${workDir}`,
+      `${envVars.join(" ")} claude --print "${escapedTask}"`,
+    ].join("\n");
+
+    // Pre-register the worker with the hub
+    try {
+      await hubFetch("/workers", {
+        method: "POST",
+        body: JSON.stringify({
+          id: workerId,
+          role: "worker",
+          task,
+          status: "spawning",
+          cwd: workDir,
+        }),
+      });
+    } catch {
+      // Hub might not be reachable yet; worker will self-register
+    }
+
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `Worker **${workerId}** ready to spawn.\n`,
+            `Run this command (in a new terminal or via Bash):\n`,
+            "```bash",
+            cmd,
+            "```",
+            `\nThe worker will auto-register with the hub and start the task.`,
+          ].join("\n"),
+        },
+      ],
+    };
+  }
+);
+
+// ── Tool: list_workers ──────────────────────────────────────────────────────
+
+server.tool(
+  "swarm_list_workers",
+  "List all workers currently registered with the hub, showing their role, status, task, and host.",
+  {},
+  async () => {
+    const data = await hubFetch("/workers");
+    if (!data.workers || data.workers.length === 0) {
+      return { content: [{ type: "text", text: "No workers registered." }] };
+    }
+    const table = data.workers
+      .map(
+        (w) =>
+          `- **${w.id}** [${w.role}] status=${w.status} | task="${w.task}" | host=${w.host} | last_seen=${w.lastSeen}`
+      )
+      .join("\n");
+    return { content: [{ type: "text", text: `## Swarm Workers (${data.workers.length})\n\n${table}` }] };
+  }
+);
+
+// ── Tool: send_message ──────────────────────────────────────────────────────
+
+server.tool(
+  "swarm_send_message",
+  "Send a message to a specific worker or broadcast to all workers. Use for task assignments, status requests, or coordination.",
+  {
+    from: z.string().describe("Sender worker ID"),
+    to: z.string().describe('Recipient worker ID, or "broadcast" for all'),
+    body: z.string().describe("Message content"),
+  },
+  async ({ from, to, body }) => {
+    const data = await hubFetch("/messages", {
+      method: "POST",
+      body: JSON.stringify({ from, to, body }),
+    });
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Message sent: ${from} → ${to}\n\n${JSON.stringify(data.message, null, 2)}`,
+        },
+      ],
+    };
+  }
+);
+
+// ── Tool: read_messages ─────────────────────────────────────────────────────
+
+server.tool(
+  "swarm_read_messages",
+  "Read messages addressed to a specific worker. Returns unread messages by default.",
+  {
+    workerId: z.string().describe("Worker ID to read messages for"),
+    all: z.boolean().optional().describe("If true, return all messages (not just unread)"),
+  },
+  async ({ workerId, all }) => {
+    const query = all ? "" : "?unread=true";
+    const data = await hubFetch(`/messages/${workerId}${query}`);
+    if (!data.messages || data.messages.length === 0) {
+      return { content: [{ type: "text", text: "No messages." }] };
+    }
+    const formatted = data.messages
+      .map((m) => `[${m.timestamp}] **${m.from}** → ${m.to}: ${m.body}`)
+      .join("\n\n");
+    return { content: [{ type: "text", text: `## Messages (${data.messages.length})\n\n${formatted}` }] };
+  }
+);
+
+// ── Tool: update_worker_status ──────────────────────────────────────────────
+
+server.tool(
+  "swarm_update_status",
+  "Update the status or current task of a worker.",
+  {
+    workerId: z.string().describe("Worker ID to update"),
+    status: z.enum(["idle", "working", "done", "error"]).optional().describe("New status"),
+    task: z.string().optional().describe("Updated task description"),
+  },
+  async ({ workerId, status, task }) => {
+    const body = {};
+    if (status) body.status = status;
+    if (task) body.task = task;
+    const data = await hubFetch(`/workers/${workerId}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+    return {
+      content: [{ type: "text", text: `Worker updated:\n${JSON.stringify(data.worker, null, 2)}` }],
+    };
+  }
+);
+
+// ── Tool: kill_worker ───────────────────────────────────────────────────────
+
+server.tool(
+  "swarm_kill_worker",
+  "Unregister a worker from the hub. Note: this removes it from tracking but does not terminate the Claude Code process.",
+  {
+    workerId: z.string().describe("Worker ID to remove"),
+  },
+  async ({ workerId }) => {
+    const data = await hubFetch(`/workers/${workerId}`, { method: "DELETE" });
+    return {
+      content: [{ type: "text", text: data.deleted ? `Worker ${workerId} removed.` : `Worker ${workerId} not found.` }],
+    };
+  }
+);
+
+// ── Start ───────────────────────────────────────────────────────────────────
+
+const transport = new StdioServerTransport();
+await server.connect(transport);

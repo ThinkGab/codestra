@@ -1,0 +1,14 @@
+{
+  "SessionStart": [
+    {
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "You are part of a Claude Swarm. Call swarm_hub_status to check if the hub is running. If it is reachable, call swarm_register to register this instance. If the hub is not reachable and SWARM_ROLE is 'leader', offer to start the hub. Report your registration status briefly.",
+          "timeout": 15
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs>
+    <linearGradient id="bannerBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="50%" style="stop-color:#161b22"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e94560"/>
+      <stop offset="50%" style="stop-color:#f5a623"/>
+      <stop offset="100%" style="stop-color:#e94560"/>
+    </linearGradient>
+    <linearGradient id="glowB" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d2ff"/>
+      <stop offset="100%" style="stop-color:#7b2ff7"/>
+    </linearGradient>
+    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e94560" stop-opacity="0"/>
+      <stop offset="50%" style="stop-color:#e94560"/>
+      <stop offset="100%" style="stop-color:#e94560" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glowF">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="400" fill="url(#bannerBg)"/>
+
+  <!-- Decorative grid lines (like sheet music staves) -->
+  <g opacity="0.07" stroke="#fff" stroke-width="1">
+    <line x1="0" y1="80" x2="1200" y2="80"/>
+    <line x1="0" y1="130" x2="1200" y2="130"/>
+    <line x1="0" y1="180" x2="1200" y2="180"/>
+    <line x1="0" y1="230" x2="1200" y2="230"/>
+    <line x1="0" y1="280" x2="1200" y2="280"/>
+  </g>
+
+  <!-- Left side: floating code symbols as musical notes -->
+  <!-- Symbol cluster left -->
+  <g filter="url(#glowF)">
+    <text x="60" y="110" font-family="monospace" font-size="28" fill="#00d2ff" opacity="0.6" transform="rotate(-10, 60, 110)">{ }</text>
+    <text x="30" y="180" font-family="monospace" font-size="22" fill="#7b2ff7" opacity="0.5" transform="rotate(5, 30, 180)">&lt;/&gt;</text>
+    <text x="80" y="250" font-family="monospace" font-size="24" fill="#f5a623" opacity="0.5" transform="rotate(-8, 80, 250)">=&gt;</text>
+    <text x="50" y="320" font-family="monospace" font-size="20" fill="#e94560" opacity="0.4">fn()</text>
+    <text x="120" y="150" font-size="30" fill="#e94560" opacity="0.4">♪</text>
+    <text x="100" y="300" font-size="24" fill="#00d2ff" opacity="0.3">♫</text>
+  </g>
+
+  <!-- Right side: floating code symbols -->
+  <g filter="url(#glowF)">
+    <text x="1060" y="100" font-family="monospace" font-size="24" fill="#7b2ff7" opacity="0.5" transform="rotate(8, 1060, 100)">[ ]</text>
+    <text x="1100" y="180" font-family="monospace" font-size="26" fill="#00d2ff" opacity="0.5" transform="rotate(-5, 1100, 180)">||</text>
+    <text x="1050" y="260" font-family="monospace" font-size="22" fill="#f5a623" opacity="0.5" transform="rotate(12, 1050, 260)">**</text>
+    <text x="1090" y="330" font-family="monospace" font-size="20" fill="#e94560" opacity="0.4">...</text>
+    <text x="1030" y="170" font-size="28" fill="#f5a623" opacity="0.4">♩</text>
+    <text x="1130" y="280" font-size="22" fill="#7b2ff7" opacity="0.3">♬</text>
+  </g>
+
+  <!-- Central conductor: IL MAESTRO (mini) -->
+  <g transform="translate(240, 120) scale(0.7)">
+    <!-- Torso / dark jacket -->
+    <path d="M -15 50 Q -10 10 0 0 Q 10 10 15 50 Z" fill="#1a1a2e" stroke="#333" stroke-width="0.5"/>
+    <!-- Lapels -->
+    <path d="M -8 20 L -1 5 L -3 35 Z" fill="#e94560" opacity="0.7"/>
+    <path d="M 8 20 L 1 5 L 3 35 Z" fill="#e94560" opacity="0.7"/>
+    <!-- Bow tie -->
+    <path d="M -5 5 L 0 8 L 5 5 L 0 2 Z" fill="#f5a623"/>
+    <circle cx="0" cy="5" r="1.2" fill="#e94560"/>
+    <!-- Head -->
+    <ellipse cx="0" cy="-15" rx="14" ry="16" fill="#ffd5c2"/>
+    <!-- Long curly white hair -->
+    <g fill="#e8e8e8" stroke="#ccc" stroke-width="0.4">
+      <ellipse cx="0" cy="-30" rx="20" ry="9"/>
+      <path d="M -18 -22 Q -25 -18 -28 -8 Q -30 2 -26 12 Q -30 22 -28 35 Q -25 28 -26 18 Q -30 5 -26 -5 Q -22 -15 -18 -20 Z"/>
+      <path d="M 18 -22 Q 25 -18 28 -8 Q 30 2 26 12 Q 30 22 28 35 Q 25 28 26 18 Q 30 5 26 -5 Q 22 -15 18 -20 Z"/>
+      <path d="M -14 -25 Q -18 -32 -10 -36 Q 0 -38 10 -36 Q 18 -32 14 -25 Z"/>
+    </g>
+    <!-- Round glasses -->
+    <circle cx="-6" cy="-16" r="7" fill="none" stroke="#f5a623" stroke-width="1.3"/>
+    <circle cx="6" cy="-16" r="7" fill="none" stroke="#f5a623" stroke-width="1.3"/>
+    <line x1="-1" y1="-17" x2="1" y2="-17" stroke="#f5a623" stroke-width="1"/>
+    <!-- Happy squinting eyes -->
+    <path d="M -9 -17 Q -6 -20 -3 -17" stroke="#1a1a2e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M 3 -17 Q 6 -20 9 -17" stroke="#1a1a2e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- Warm smile -->
+    <path d="M -6 -8 Q 0 -2 6 -8" stroke="#c4846b" stroke-width="1.8" fill="#fff" fill-opacity="0.2" stroke-linecap="round"/>
+    <!-- Rosy cheeks -->
+    <circle cx="-12" cy="-10" r="3.5" fill="#e8a090" opacity="0.35"/>
+    <circle cx="12" cy="-10" r="3.5" fill="#e8a090" opacity="0.35"/>
+    <!-- Bushy white eyebrows -->
+    <path d="M -10 -23 Q -6 -26 -2 -23" stroke="#ddd" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 2 -23 Q 6 -26 10 -23" stroke="#ddd" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- Left arm up with spread fingers -->
+    <path d="M -15 20 Q -40 0 -50 -25" stroke="#ffd5c2" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="-52" cy="-27" r="4" fill="#ffd5c2"/>
+    <line x1="-56" y1="-32" x2="-58" y2="-38" stroke="#ffd5c2" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="-53" y1="-33" x2="-54" y2="-40" stroke="#ffd5c2" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="-50" y1="-32" x2="-49" y2="-39" stroke="#ffd5c2" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- Right arm with baton -->
+    <path d="M 15 20 Q 40 -5 55 -30" stroke="#ffd5c2" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="57" cy="-32" r="4" fill="#ffd5c2"/>
+    <!-- Baton -->
+    <line x1="59" y1="-35" x2="85" y2="-60" stroke="url(#glowB)" stroke-width="2.5" stroke-linecap="round" filter="url(#glowF)"/>
+    <circle cx="87" cy="-62" r="3" fill="#00d2ff" filter="url(#glowF)"/>
+  </g>
+
+  <!-- Connection lines from conductor to title (like directing energy) -->
+  <g filter="url(#softGlow)" opacity="0.3">
+    <path d="M 310 90 Q 380 100 440 140" stroke="#00d2ff" stroke-width="1.5" fill="none" stroke-dasharray="4,6">
+      <animate attributeName="stroke-dashoffset" values="0;-20" dur="2s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 315 110 Q 390 130 440 160" stroke="#7b2ff7" stroke-width="1.5" fill="none" stroke-dasharray="4,6">
+      <animate attributeName="stroke-dashoffset" values="0;-20" dur="2.5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 305 130 Q 370 160 440 180" stroke="#e94560" stroke-width="1.5" fill="none" stroke-dasharray="4,6">
+      <animate attributeName="stroke-dashoffset" values="0;-20" dur="1.8s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Title: CODESTRA -->
+  <text x="600" y="185" text-anchor="middle" font-family="'Georgia', serif" font-size="90" font-weight="bold" fill="url(#titleGrad)" letter-spacing="8" filter="url(#glowF)">CODESTRA</text>
+
+  <!-- Decorative line under title -->
+  <line x1="350" y1="210" x2="850" y2="210" stroke="url(#lineGrad)" stroke-width="2"/>
+
+  <!-- Tagline -->
+  <text x="600" y="250" text-anchor="middle" font-family="'Courier New', monospace" font-size="20" fill="#8b949e" letter-spacing="4">orchestrate your Claude Code instances</text>
+
+  <!-- Feature pills -->
+  <g font-family="'Courier New', monospace" font-size="13" letter-spacing="1">
+    <!-- Hub & Spoke -->
+    <rect x="320" y="280" width="130" height="28" rx="14" fill="none" stroke="#e94560" stroke-width="1.2" opacity="0.7"/>
+    <text x="385" y="299" text-anchor="middle" fill="#e94560" opacity="0.9">Hub &amp; Spoke</text>
+
+    <!-- MCP Native -->
+    <rect x="470" y="280" width="120" height="28" rx="14" fill="none" stroke="#00d2ff" stroke-width="1.2" opacity="0.7"/>
+    <text x="530" y="299" text-anchor="middle" fill="#00d2ff" opacity="0.9">MCP Native</text>
+
+    <!-- LAN Ready -->
+    <rect x="610" y="280" width="110" height="28" rx="14" fill="none" stroke="#7b2ff7" stroke-width="1.2" opacity="0.7"/>
+    <text x="665" y="299" text-anchor="middle" fill="#7b2ff7" opacity="0.9">LAN Ready</text>
+
+    <!-- Multi-Agent -->
+    <rect x="740" y="280" width="130" height="28" rx="14" fill="none" stroke="#f5a623" stroke-width="1.2" opacity="0.7"/>
+    <text x="805" y="299" text-anchor="middle" fill="#f5a623" opacity="0.9">Multi-Agent</text>
+  </g>
+
+  <!-- Animated sparkles -->
+  <circle cx="350" cy="150" r="2" fill="#f5a623" opacity="0.6">
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="850" cy="160" r="2" fill="#00d2ff" opacity="0.6">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="1.7s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="500" cy="130" r="1.5" fill="#7b2ff7" opacity="0.5">
+    <animate attributeName="opacity" values="0.2;0.9;0.2" dur="2.3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="750" cy="140" r="1.5" fill="#e94560" opacity="0.5">
+    <animate attributeName="opacity" values="0.3;0.8;0.3" dur="1.9s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Bottom subtle gradient fade -->
+  <rect x="0" y="350" width="1200" height="50" fill="url(#bannerBg)" opacity="0.5"/>
+  <text x="600" y="380" text-anchor="middle" font-family="monospace" font-size="11" fill="#484f58" letter-spacing="2">pip install codestra | npm i codestra</text>
+</svg>
