@@ -22,7 +22,9 @@ Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazi
 
 ### Validated
 
-(None yet — first milestone)
+- [x] **HUB-01**: Hub registra `callback_url` per ogni worker — Validated in Phase 03: hub-push-delivery
+- [x] **HUB-02**: Hub usa `callback_url` per push diretto al worker (bidirezionale) — Validated in Phase 03: hub-push-delivery
+- [x] **HUB-03**: Hub fa fallback a polling se worker non ha `callback_url` — Validated in Phase 03: hub-push-delivery
 
 ### Active
 
@@ -30,9 +32,6 @@ Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazi
 - [ ] **CMD-02**: Utente può avviare worker con `/codestra-start-worker [hub-ip] [hub-port]`
 - [ ] **WORKER-01**: Worker espone porta HTTP locale al momento della registrazione
 - [ ] **WORKER-02**: Worker comunica `callback_url` all'hub durante `swarm_register`
-- [ ] **HUB-01**: Hub registra `callback_url` per ogni worker
-- [ ] **HUB-02**: Hub usa `callback_url` per push diretto al worker (bidirezionale)
-- [ ] **HUB-03**: Hub fa fallback a polling se worker non ha `callback_url`
 
 ### Out of Scope
 
@@ -79,4 +78,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-_Last updated: 2026-04-19 — Milestone v1.0 started_
+_Last updated: 2026-04-19 — Phase 03 complete: hub push delivery implemented_
