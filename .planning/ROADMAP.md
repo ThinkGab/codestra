@@ -56,7 +56,10 @@ Plans:
   2. When a message is sent to a worker that has a `callback_url`, the hub POSTs the message payload to that URL
   3. When the hub POST to `callback_url` fails (network error, non-2xx response), the message remains available via the existing polling endpoint without surfacing an error to the sender
   4. When a worker has no `callback_url` set, the hub silently uses store-and-forward (polling model) unchanged
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 03-01-PLAN.md — Hub data model + push infrastructure (readBy:Set, callback_url on worker, pushToWorker helper, GET route update)
+- [ ] 03-02-PLAN.md — Push delivery in POST /messages (respond-before-push, unicast + broadcast fan-out, readBy marking on success)
 
 ## Progress
 
