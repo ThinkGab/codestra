@@ -58,7 +58,13 @@ function readBody(req) {
 function authorize(req, res) {
   if (!SECRET) return true;
   const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-  if (token === SECRET) return true;
+  // Constant-time comparison to prevent timing attacks
+  const tokenBuf  = Buffer.from(token.padEnd(SECRET.length));
+  const secretBuf = Buffer.from(SECRET);
+  if (
+    tokenBuf.length === secretBuf.length &&
+    crypto.timingSafeEqual(tokenBuf, secretBuf)
+  ) return true;
   json(res, 401, { error: "Unauthorized — set SWARM_SECRET" });
   return false;
 }
