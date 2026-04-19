@@ -88,6 +88,7 @@ const routes = {
       host: body.host || req.socket.remoteAddress || "unknown",
       registeredAt: workers.has(id) ? workers.get(id).registeredAt : new Date().toISOString(),
       lastSeen: new Date().toISOString(),
+      callback_url: body.callback_url || null,
     };
     workers.set(id, worker);
     json(res, 200, { ok: true, worker });
