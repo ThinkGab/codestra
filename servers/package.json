@@ -1,5 +1,5 @@
 {
-  "name": "claude-swarm-servers",
+  "name": "codestra-servers",
   "version": "0.1.0",
   "type": "module",
   "description": "Hub + MCP server for Claude Swarm orchestration",

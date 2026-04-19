@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "claude-swarm": {
+    "codestra": {
       "command": "node",
       "args": ["${CLAUDE_PLUGIN_ROOT}/servers/mcp-server.mjs"],
       "env": {

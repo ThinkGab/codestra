@@ -37,7 +37,7 @@ async function hubFetch(path, options = {}) {
 // ── MCP Server ──────────────────────────────────────────────────────────────
 
 const server = new McpServer({
-  name: "claude-swarm",
+  name: "codestra",
   version: "0.1.0",
 });
 

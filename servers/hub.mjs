@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Claude Swarm — Hub Server
+ * Codestra — Hub Server
  *
  * Central HTTP broker that manages worker registration, status tracking,
  * and inter-instance messaging across a LAN.
@@ -276,7 +276,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`🐝 Claude Swarm Hub listening on http://${HOST}:${PORT}`);
+  console.log(`🐝 Codestra Hub listening on http://${HOST}:${PORT}`);
   if (SECRET) console.log("🔒 Auth enabled (SWARM_SECRET set)");
   else console.log("⚠️  No SWARM_SECRET — hub is open (fine for trusted LAN)");
 });
