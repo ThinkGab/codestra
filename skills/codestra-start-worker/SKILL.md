@@ -21,13 +21,13 @@ Il tool `swarm_register` si connette all'hub tramite `SWARM_HUB_URL`, che viene 
 Prima di invocare `swarm_register`, verifica che `SWARM_HUB_URL` nel file `.mcp.json` di questa istanza punti a `http://$0:${1:-7800}`. Se non corrisponde, informa l'utente e chiedi di aggiornare `.mcp.json` e riavviare Claude Code, oppure segui le istruzioni nel prossimo paragrafo.
 
 **Se SWARM_HUB_URL non è configurata o punta all'hub sbagliato:**
-Informa l'utente che deve aggiornare `.mcp.json`:
+Informa l'utente che deve aggiornare `.mcp.json`. Prima di mostrare lo snippet, sostituisci `<hub-ip>` con il valore di `$0` e `<hub-port>` con il valore di `$1` (o `7800` se non specificato):
 ```json
 {
   "mcpServers": {
-    "codestra": {
+    "claude-swarm": {
       "env": {
-        "SWARM_HUB_URL": "http://$0:${1:-7800}"
+        "SWARM_HUB_URL": "http://<hub-ip>:<hub-port>"
       }
     }
   }
