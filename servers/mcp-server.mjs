@@ -16,11 +16,13 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import http from "node:http";
 
 const HUB_URL = process.env.SWARM_HUB_URL || "http://localhost:7800";
 const SECRET = process.env.SWARM_SECRET || "";
 const ROLE = process.env.SWARM_ROLE || "worker";
 const INSTANCE_ID = process.env.SWARM_ID || "";
+const WORKER_HOST = process.env.SWARM_HOST ?? "localhost";
 
 // ── Hub client ──────────────────────────────────────────────────────────────
 
@@ -101,12 +103,33 @@ server.tool(
   {
     role: z.enum(["leader", "worker"]).optional().describe("Role of this instance (default from env)"),
     task: z.string().optional().describe("Brief description of what this instance is working on"),
+    workerPort: z.number().optional().describe("Port for the worker HTTP server (default: OS-assigned)"),
   },
-  async ({ role, task }) => {
+  async ({ role, task, workerPort }) => {
+    // 1. Avvia server HTTP worker — DEVE essere up prima del POST all'hub (D-01, D-02)
+    //    Evita race condition: se l'hub tentasse push immediatamente dopo registrazione,
+    //    il server deve già essere in ascolto.
+    const portArg = workerPort ? Number(workerPort) : 0;
+    let boundPort;
+    try {
+      const result = await startWorkerServer(portArg);
+      boundPort = result.port;
+    } catch (err) {
+      return {
+        content: [{ type: "text", text: err.message }],
+        isError: true,
+      };
+    }
+
+    // 2. Costruisci callback_url (D-03, D-04)
+    const callbackUrl = `http://${WORKER_HOST}:${boundPort}`;
+
+    // 3. POST all'hub con callback_url inclusa nel body (WORKER-03)
     const body = {
       role: role || ROLE,
       task: task || "idle",
       cwd: process.cwd(),
+      callback_url: callbackUrl,
     };
     if (INSTANCE_ID) body.id = INSTANCE_ID;
 
@@ -118,7 +141,7 @@ server.tool(
       content: [
         {
           type: "text",
-          text: `Registered as ${data.worker?.role} with ID: ${data.worker?.id}\n\n${JSON.stringify(data.worker, null, 2)}`,
+          text: `Registered as ${data.worker?.role} with ID: ${data.worker?.id}\ncallback_url: ${callbackUrl}\n\n${JSON.stringify(data.worker, null, 2)}`,
         },
       ],
     };
@@ -295,6 +318,76 @@ server.tool(
     };
   }
 );
+
+// ── Worker HTTP Server ──────────────────────────────────────────────────────
+
+function json(res, status, data) {
+  const body = JSON.stringify(data);
+  res.writeHead(status, {
+    "Content-Type": "application/json",
+    "Content-Length": Buffer.byteLength(body),
+  });
+  res.end(body);
+}
+
+function workerRequestHandler(req, res) {
+  // Auth check (D-09): replica authorize() da hub.mjs
+  if (SECRET) {
+    const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+    if (token !== SECRET) {
+      json(res, 401, { error: "Unauthorized — set SWARM_SECRET" });
+      return;
+    }
+  }
+
+  // GET /health (Claude's Discretion — health check endpoint)
+  if (req.method === "GET" && req.url === "/health") {
+    json(res, 200, { ok: true, role: "worker" });
+    return;
+  }
+
+  // POST / — ricevi messaggio push dall'hub (D-05, D-06)
+  if (req.method === "POST" && req.url === "/") {
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => {
+      const body = Buffer.concat(chunks).toString();
+      process.stdout.write(`[worker-push] ${body}\n`);
+      json(res, 200, { ok: true });
+    });
+    req.on("error", (err) => {
+      json(res, 500, { error: err.message });
+    });
+    return;
+  }
+
+  // 404 per tutto il resto
+  res.writeHead(404);
+  res.end();
+}
+
+/**
+ * Avvia il worker HTTP server in-process.
+ * @param {number} [port=0] - Porta (0 = OS-assigned, D-08)
+ * @returns {Promise<{server: http.Server, port: number}>}
+ */
+function startWorkerServer(port = 0) {
+  return new Promise((resolve, reject) => {
+    const srv = http.createServer(workerRequestHandler);
+    srv.listen(port, WORKER_HOST, () => {
+      resolve({ server: srv, port: srv.address().port });
+    });
+    srv.on("error", (err) => {
+      if (err.code === "EADDRINUSE") {
+        reject(new Error(
+          `Worker port ${port} already in use. Omit workerPort to use an OS-assigned port.`
+        ));
+      } else {
+        reject(err);
+      }
+    });
+  });
+}
 
 // ── Start ───────────────────────────────────────────────────────────────────
 
