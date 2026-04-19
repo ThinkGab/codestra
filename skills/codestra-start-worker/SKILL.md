@@ -25,7 +25,7 @@ Informa l'utente che deve aggiornare `.mcp.json`. Prima di mostrare lo snippet, 
 ```json
 {
   "mcpServers": {
-    "claude-swarm": {
+    "codestra": {
       "env": {
         "SWARM_HUB_URL": "http://<hub-ip>:<hub-port>"
       }
