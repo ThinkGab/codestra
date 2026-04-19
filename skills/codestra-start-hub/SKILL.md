@@ -1,72 +1,49 @@
 ---
-name: orchestrate
-description: >
-  This skill should be used when the user asks to "orchestrate workers",
-  "spawn sub-instances", "start a swarm", "coordinate Claude instances",
-  "run parallel tasks", "split work across agents", or needs to manage
-  multiple Claude Code instances working together via the Swarm hub.
-metadata:
-  version: "0.1.0"
+name: codestra-start-hub
+description: Avvia il Swarm Hub Codestra su questa istanza Claude Code. Usare quando si vuole essere il nodo centrale dello swarm. Gli altri Claude Code si registreranno come worker su questo hub.
+argument-hint: [port] [ip]
+disable-model-invocation: true
 ---
 
-# Orchestrate Claude Swarm Workers
+Avvia il Swarm Hub Codestra su questa istanza.
 
-Coordinate multiple Claude Code instances through the Swarm hub using a Hub & Spoke model.
-This instance acts as the **leader** that spawns, monitors, and collects results from workers.
+**Argomenti ricevuti:** $ARGUMENTS
 
-## Startup Sequence
+Parametri:
+- Porta (`$0`): porta su cui l'hub ascolta le connessioni. Default: 7800 se non specificato.
+- IP binding (`$1`): indirizzo IP su cui l'hub si lega. Default: 0.0.0.0 (tutte le interfacce, accesso LAN). Specificare un IP esplicito per restringere l'accesso a una sola interfaccia.
 
-1. Start the hub (if not running):
-   - Call `swarm_hub_status` to check if the hub is alive
-   - If unreachable, use `swarm_hub_start` to get the launch command, then execute it via Bash
-   - Verify with `swarm_hub_status`
+## Istruzioni operative
 
-2. Register this instance as leader:
-   - Call `swarm_register` with `role: "leader"` and a description of the overall task
+**Caso A — Solo porta specificata (o nessun argomento):**
+Usa il tool `swarm_hub_start` con `port=$0`.
+- Se nessun argomento: chiama `swarm_hub_start` senza parametri (usa default 7800).
+- Se solo `$0` fornito: chiama `swarm_hub_start` con `port=$0`.
+- Il tool restituisce un comando bash: eseguilo via Bash tool.
 
-## Spawning Workers
+**Caso B — Porta e IP specificati ($1 presente):**
+Il tool `swarm_hub_start` non supporta il parametro host direttamente — hub.mjs legge `SWARM_HOST` da env var.
+Costruisci e lancia il comando bash direttamente:
 
-Break the user's task into independent subtasks. For each subtask:
-
-1. Call `swarm_spawn_worker` with a clear, self-contained task description
-2. The tool returns a shell command — execute it via Bash to launch the worker
-3. Each worker gets a unique ID for tracking
-
-### Writing Good Worker Prompts
-
-Each worker runs as an independent Claude Code session. The prompt must be **self-contained**:
-
-- State the exact goal
-- Specify input files or directories
-- Define the expected output format
-- Include any constraints or conventions
-- Tell the worker to call `swarm_register` at start and `swarm_update_status` when done
-
-Example:
-```
-You are a Swarm worker. First call swarm_register with role "worker".
-Your task: review all TypeScript files in src/api/ for security issues.
-Write findings to /tmp/security-report-{workerId}.md.
-When done, call swarm_update_status with status "done" and send results
-via swarm_send_message to the leader.
+```bash
+SWARM_HOST=$1 SWARM_PORT=$0 nohup node "${CLAUDE_SKILL_DIR}/../../servers/hub.mjs" > /tmp/swarm-hub.log 2>&1 &
 ```
 
-## Monitoring
+Se `$0` non è specificato, ometti `SWARM_PORT` (verrà usato il default 7800).
 
-Poll worker status periodically:
+## Verifica avvio
 
-- `swarm_list_workers` — overview of all workers
-- `swarm_read_messages` — check for worker reports
-- Workers in "error" status need attention
+Dopo aver eseguito il comando bash, attendi 1 secondo e verifica con:
 
-## Collecting Results
+```bash
+curl http://localhost:${0:-7800}/health
+```
 
-When all workers report status "done":
+Risposta attesa: `{"status":"ok"}` o simile JSON con stato dell'hub.
 
-1. Read each worker's messages via `swarm_read_messages`
-2. Synthesize results into a unified report
-3. Clean up with `swarm_kill_worker` for completed workers
+## Output all'utente
 
-## Detailed Reference
-
-Read `references/patterns.md` for advanced orchestration patterns (fan-out/fan-in, sequential pipeline, retry logic).
+Mostra all'utente:
+- L'URL dell'hub: `http://<ip-o-localhost>:<porta>`
+- Come i worker possono registrarsi: `SWARM_HUB_URL=http://<ip>:<porta>` da impostare nel loro `.mcp.json`
+- Il log dell'hub: `/tmp/swarm-hub.log`

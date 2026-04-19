@@ -1,83 +1,54 @@
 ---
-name: messaging
-description: >
-  This skill should be used when the user asks to "send a message to a worker",
-  "check messages", "broadcast to all instances", "communicate between agents",
-  "read worker reports", or needs to handle inter-instance messaging
-  in a Claude Swarm setup.
-metadata:
-  version: "0.1.0"
+name: codestra-start-worker
+description: Registra questa istanza Claude Code come worker nel Swarm Hub Codestra. Specificare l'indirizzo IP e la porta dell'hub. Il worker-port è opzionale (sarà utilizzato nella Fase 2 per comunicazione push bidirezionale).
+argument-hint: [hub-ip] [hub-port] [worker-port?]
+disable-model-invocation: true
 ---
 
-# Swarm Messaging
+Registra questa istanza Claude Code come worker nel Swarm Hub Codestra.
 
-Send and receive messages between Claude Code instances through the Swarm hub.
+**Argomenti ricevuti:** $ARGUMENTS
 
-## Core Operations
+Parametri:
+- Hub IP (`$0`): indirizzo IP dell'istanza hub (es. `192.168.1.10` o `localhost`).
+- Hub Port (`$1`): porta dell'hub (es. `7800`). Default: 7800 se non specificato.
+- Worker Port (`$2`): opzionale — porta per il server HTTP del worker (Fase 2). Ignorare per ora se fornito.
 
-### Send a Direct Message
+## Prerequisito
 
-Call `swarm_send_message` with:
-- `from`: this instance's worker ID
-- `to`: target worker ID
-- `body`: message content (plain text or structured data)
+Il tool `swarm_register` si connette all'hub tramite `SWARM_HUB_URL`, che viene letta dalla variabile d'ambiente al momento dell'avvio del MCP server — non è un parametro runtime del tool.
 
-### Broadcast to All Workers
+Prima di invocare `swarm_register`, verifica che `SWARM_HUB_URL` nel file `.mcp.json` di questa istanza punti a `http://$0:${1:-7800}`. Se non corrisponde, informa l'utente e chiedi di aggiornare `.mcp.json` e riavviare Claude Code, oppure segui le istruzioni nel prossimo paragrafo.
 
-Call `swarm_send_message` with `to: "broadcast"`. All workers will receive the message.
-
-Use broadcasts for:
-- Announcing a configuration change
-- Requesting status from all workers
-- Signaling shutdown or task completion
-
-### Read Messages
-
-Call `swarm_read_messages` with this instance's worker ID.
-By default, returns only unread messages. Set `all: true` for full history.
-
-## Message Conventions
-
-Structure messages for machine readability when coordinating automated workflows:
-
-### Task Assignment (Leader → Worker)
+**Se SWARM_HUB_URL non è configurata o punta all'hub sbagliato:**
+Informa l'utente che deve aggiornare `.mcp.json`:
+```json
+{
+  "mcpServers": {
+    "codestra": {
+      "env": {
+        "SWARM_HUB_URL": "http://$0:${1:-7800}"
+      }
+    }
+  }
+}
 ```
-ACTION: review
-TARGET: src/api/auth.ts
-OUTPUT_FORMAT: markdown
-REPORT_TO: leader-abc123
-```
+Dopo l'aggiornamento, l'utente deve riavviare Claude Code per applicare la nuova env var.
 
-### Status Report (Worker → Leader)
-```
-STATUS: done
-RESULT: Found 3 security issues (2 high, 1 medium)
-OUTPUT_FILE: /tmp/review-auth.md
-```
+## Istruzioni operative
 
-### Error Report (Worker → Leader)
-```
-STATUS: error
-ERROR: File not found: src/api/auth.ts
-SUGGESTION: Check if path has changed
-```
+Una volta verificato che `SWARM_HUB_URL` punta all'hub corretto:
 
-### Acknowledgment
-```
-ACK: message-id-here
-```
+1. Usa il tool `swarm_register` con:
+   - `role`: `"worker"`
+   - `task`: breve descrizione del lavoro che questo worker svolgerà (chiedere all'utente se non noto)
 
-## Polling Pattern
+2. Verifica la risposta del tool — deve contenere un worker ID assegnato dall'hub.
 
-When waiting for worker responses, poll at reasonable intervals:
+## Output all'utente
 
-1. Call `swarm_read_messages` for this instance
-2. If no new messages, wait 3-5 seconds
-3. Repeat until expected responses arrive or timeout (default 5 minutes)
-
-## Tips
-
-- Keep message bodies concise — workers have limited context
-- Use structured formats (key: value) for automated parsing
-- Always include a STATUS field in worker reports
-- The leader should acknowledge received results to avoid re-sends
+Mostra all'utente:
+- Il worker ID assegnato dall'hub
+- L'URL dell'hub a cui è connesso: `http://$0:${1:-7800}`
+- Conferma che il worker è ora registrato e in ascolto di task
+- Nota: il parametro worker-port (`$2`) sarà attivo nella Fase 2 (Worker HTTP Server)
