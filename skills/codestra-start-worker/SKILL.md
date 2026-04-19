@@ -12,7 +12,7 @@ Registra questa istanza Claude Code come worker nel Swarm Hub Codestra.
 Parametri:
 - Hub IP (`$0`): indirizzo IP dell'istanza hub (es. `192.168.1.10` o `localhost`).
 - Hub Port (`$1`): porta dell'hub (es. `7800`). Default: 7800 se non specificato.
-- Worker Port (`$2`): opzionale — porta per il server HTTP del worker (Fase 2). Ignorare per ora se fornito.
+- Worker Port (`$2`): opzionale — porta per il server HTTP del worker. Se fornito, passare come `workerPort` al tool `swarm_register`. Se omesso, l'OS assegna automaticamente una porta libera.
 
 ## Prerequisito
 
@@ -42,6 +42,7 @@ Una volta verificato che `SWARM_HUB_URL` punta all'hub corretto:
 1. Usa il tool `swarm_register` con:
    - `role`: `"worker"` (oppure ometti se `SWARM_ROLE` è già configurata nell'env)
    - `task`: breve descrizione del lavoro che questo worker svolgerà (chiedere all'utente se non noto)
+   - `workerPort`: se `$2` è fornito, passare il suo valore numerico; altrimenti omettere (l'OS assegnerà la porta)
 
 2. Verifica la risposta del tool — deve contenere un worker ID assegnato dall'hub.
 
@@ -51,4 +52,4 @@ Mostra all'utente:
 - Il worker ID assegnato dall'hub
 - L'URL dell'hub a cui è connesso: `http://$0:${1:-7800}`
 - Conferma che il worker è ora registrato e in ascolto di task
-- Nota: il parametro worker-port (`$2`) sarà attivo nella Fase 2 (Worker HTTP Server)
+- La `callback_url` del worker HTTP server (restituita da `swarm_register` nella risposta)
