@@ -1,9 +1,15 @@
 ---
 phase: 01-slash-command-skills
-verified: 2026-04-19T11:59:00+02:00
+verified: 2026-04-19T16:12:00+02:00
 status: human_needed
 score: 6/6 must-haves verified
 overrides_applied: 0
+re_verification:
+  previous_status: human_needed
+  previous_score: 6/6
+  gaps_closed: []
+  gaps_remaining: []
+  regressions: []
 human_verification:
   - test: "Digitare /codestra:codestra-start-hub 8080 192.168.1.1 in una sessione Claude Code con il plugin installato"
     expected: "Claude Code presenta il suggerimento [port] [ip] nell'autocomplete e, dopo invocazione, esegue swarm_hub_start con port=8080 e lancia il bash cmd con SWARM_HOST=192.168.1.1"
@@ -16,9 +22,9 @@ human_verification:
 # Phase 1: Slash Command Skills — Verification Report
 
 **Phase Goal:** Rendere operativi i due slash command /codestra:codestra-start-hub e /codestra:codestra-start-worker nel plugin Codestra.
-**Verified:** 2026-04-19T11:59:00+02:00
+**Verified:** 2026-04-19T16:12:00+02:00
 **Status:** human_needed
-**Re-verification:** No — initial verification
+**Re-verification:** Si — controllo di regressione dopo verifica iniziale (nessun gap da chiudere)
 
 ## Goal Achievement
 
@@ -30,10 +36,14 @@ human_verification:
 | 2  | L'utente può digitare /codestra:codestra-start-worker e Claude Code presenta [hub-ip] [hub-port] [worker-port?]   | ✓ VERIFIED | `argument-hint: [hub-ip] [hub-port] [worker-port?]` in SKILL.md frontmatter; `name: codestra-start-worker` |
 | 3  | La skill hub istruisce Claude a usare swarm_hub_start per port, e bash cmd con SWARM_HOST per ip                  | ✓ VERIFIED | Caso A: `swarm_hub_start con port=$0` (riga 19-21). Caso B: bash con `SWARM_HOST=$1` (riga 29)    |
 | 4  | La skill worker istruisce Claude a verificare SWARM_HUB_URL e invocare swarm_register con role=worker             | ✓ VERIFIED | Verifica SWARM_HUB_URL (riga 21); `swarm_register` con `role: "worker"` (riga 42-43)             |
-| 5  | Il file plugin.jsons non esiste più nel repository                                                                | ✓ VERIFIED | Rimosso in commit cfbc460; `ls .claude-plugin/` mostra solo `plugin.json`                        |
-| 6  | Il namespace del plugin è 'codestra' (non 'claude-swarm')                                                         | ✓ VERIFIED | `"name": "codestra"` in `.claude-plugin/plugin.json`                                             |
+| 5  | Il file plugin.jsons non esiste più nel repository                                                                | ✓ VERIFIED | Rimosso in commit cfbc460; `ls .claude-plugin/` mostra solo `plugin.json`; glob `**/*.jsons` = 0 risultati |
+| 6  | Il namespace del plugin è 'codestra' (non 'claude-swarm')                                                         | ✓ VERIFIED | `"name": "codestra"` in `.claude-plugin/plugin.json`; grep `claude-swarm` in worker SKILL.md = 0 risultati |
 
 **Score:** 6/6 truths verified
+
+### Regressioni (re-verifica)
+
+Nessuna regressione rilevata. Tutti e 6 gli item confermati stabili rispetto alla verifica iniziale del 2026-04-19T11:59:00+02:00.
 
 ### Required Artifacts
 
@@ -53,7 +63,7 @@ human_verification:
 
 ### Data-Flow Trace (Level 4)
 
-Not applicable — le skill sono file di istruzioni in markdown (non componenti che renderizzano dati dinamici). Il "data flow" è il dispatch del comando da Claude Code all'istanza Claude, verificabile solo tramite human testing.
+Non applicabile — le skill sono file di istruzioni in markdown (non componenti che renderizzano dati dinamici). Il "data flow" e il dispatch del comando avvengono nel runtime di Claude Code, verificabile solo tramite human testing.
 
 ### Behavioral Spot-Checks
 
@@ -72,7 +82,7 @@ Nessun requirement orphaned: REQUIREMENTS.md mappa CMD-01 e CMD-02 a Phase 1; en
 
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
-| — | — | — | — | Nessun anti-pattern trovato |
+| —    | —    | —       | —        | Nessun anti-pattern trovato |
 
 Grep per TODO/FIXME/placeholder/not-implemented nelle directory `skills/` non ha prodotto risultati. Entrambi i SKILL.md sono implementazioni complete con istruzioni operative, non stub.
 
@@ -98,9 +108,9 @@ Grep per TODO/FIXME/placeholder/not-implemented nelle directory `skills/` non ha
 
 Nessun gap. Tutti e 6 i must-have sono verificati, tutti e 3 gli artifact esistono e sono sostanziali, tutti e 3 i key link sono cablati. I requisiti CMD-01 e CMD-02 risultano coperti dalle implementazioni verificate.
 
-La fase è in stato `human_needed` esclusivamente perché l'attivazione dei comandi nell'UI di Claude Code richiede un'istanza live del plugin — non vi sono lacune implementative identificate nel codebase.
+La fase rimane in stato `human_needed` esclusivamente perché l'attivazione dei comandi nell'UI di Claude Code richiede un'istanza live del plugin — non vi sono lacune implementative nel codebase.
 
 ---
 
-_Verified: 2026-04-19T11:59:00+02:00_
+_Verified: 2026-04-19T16:12:00+02:00_
 _Verifier: Claude (gsd-verifier)_
