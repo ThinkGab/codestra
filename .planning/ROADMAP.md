@@ -12,7 +12,7 @@ Codestra is a Claude Code plugin for multi-agent swarm orchestration. Milestone 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Slash Command Skills** - SKILL.md content for `/codestra-start-hub` and `/codestra-start-worker`
+- [x] **Phase 1: Slash Command Skills** - SKILL.md content for `/codestra-start-hub` and `/codestra-start-worker` *(completed 2026-04-19)*
 - [ ] **Phase 2: Worker HTTP Server** - Worker starts local HTTP server and registers its callback_url with the hub
 - [ ] **Phase 3: Hub Push Delivery** - Hub POSTs to worker callback_url with silent fallback to polling
 
@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md — Rinomina skill directory, aggiorna manifest (name: codestra), scrivi SKILL.md per hub e worker
+- [x] 01-01-PLAN.md — Rinomina skill directory, aggiorna manifest (name: codestra), scrivi SKILL.md per hub e worker
 
 ### Phase 2: Worker HTTP Server
 **Goal**: A worker instance starts a local HTTP server on slash command execution and communicates its callback_url to the hub during registration
@@ -61,6 +61,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Slash Command Skills | 0/1 | Not started | - |
+| 1. Slash Command Skills | 1/1 | Complete | 2026-04-19 |
 | 2. Worker HTTP Server | 0/? | Not started | - |
 | 3. Hub Push Delivery | 0/? | Not started | - |
