@@ -27,7 +27,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User can run `/codestra-start-hub [port] [ip]` and the skill content directs Claude to start the hub with the specified binding
   3. User can run `/codestra-start-worker [hub-ip] [hub-port] [worker-port?]` and the skill content directs Claude to register this instance as a worker
   4. Both skill files exist under `skills/` and are surfaced as Claude Code slash commands via the plugin manifest
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 01-01-PLAN.md — Rinomina skill directory, aggiorna manifest (name: codestra), scrivi SKILL.md per hub e worker
 
 ### Phase 2: Worker HTTP Server
 **Goal**: A worker instance starts a local HTTP server on slash command execution and communicates its callback_url to the hub during registration
@@ -58,6 +61,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Slash Command Skills | 0/? | Not started | - |
+| 1. Slash Command Skills | 0/1 | Not started | - |
 | 2. Worker HTTP Server | 0/? | Not started | - |
 | 3. Hub Push Delivery | 0/? | Not started | - |
