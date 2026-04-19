@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Slash Command Skills** - SKILL.md content for `/codestra-start-hub` and `/codestra-start-worker` *(completed 2026-04-19)*
 - [x] **Phase 2: Worker HTTP Server** - Worker starts local HTTP server and registers its callback_url with the hub *(completed 2026-04-19)*
-- [ ] **Phase 3: Hub Push Delivery** - Hub POSTs to worker callback_url with silent fallback to polling
+- [x] **Phase 3: Hub Push Delivery** - Hub POSTs to worker callback_url with silent fallback to polling *(completed 2026-04-19)*
 
 ## Phase Details
 
