@@ -160,8 +160,8 @@ const routes = {
     const w = workers.get(params.id);
     if (!w) return json(res, 404, { error: "Worker not found" });
     const body = await readBody(req);
-    if (body.status) w.status = body.status;
-    if (body.task) w.task = body.task;
+    if (body.status !== undefined) w.status = body.status;
+    if (body.task   !== undefined) w.task   = body.task;
     w.lastSeen = new Date().toISOString();
     json(res, 200, { ok: true, worker: w });
   },
