@@ -162,7 +162,30 @@ const routes = {
       readBy: new Set(),
     };
     messages.push(msg);
+    // D-03: response contract unchanged — {ok, message}
+    // D-07: respond FIRST, push async — sender never hangs waiting for worker
     json(res, 201, { ok: true, message: msg });
+
+    setImmediate(async () => {
+      if (msg.to === "broadcast") {
+        // D-01: push to ALL workers with a callback_url; per-worker silent fallback
+        const targets = [...workers.values()].filter((w) => w.callback_url);
+        await Promise.allSettled(
+          targets.map(async (worker) => {
+            const ok = await pushToWorker(worker, msg);
+            if (ok) msg.readBy.add(worker.id); // D-02: mark delivered per worker
+          })
+        );
+      } else {
+        // Unicast: push to the specific recipient if they have a callback_url
+        const worker = workers.get(msg.to);
+        if (worker) {
+          const ok = await pushToWorker(worker, msg);
+          if (ok) msg.readBy.add(worker.id); // D-02: mark delivered
+          // D-05: if !ok, message stays in store-and-forward (readBy unchanged)
+        }
+      }
+    });
   },
 
   // Read messages for a worker
