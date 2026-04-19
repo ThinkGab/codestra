@@ -26,10 +26,12 @@ Il tool `swarm_hub_start` non supporta il parametro host direttamente — hub.mj
 Costruisci e lancia il comando bash direttamente:
 
 ```bash
-SWARM_HOST=$1 SWARM_PORT=$0 nohup node "${CLAUDE_SKILL_DIR}/../../servers/hub.mjs" > /tmp/swarm-hub.log 2>&1 &
+SWARM_HOST=$1 SWARM_PORT=$0 nohup node "${CLAUDE_PLUGIN_ROOT}/servers/hub.mjs" > /tmp/swarm-hub.log 2>&1 &
 ```
 
 Se `$0` non è specificato, ometti `SWARM_PORT` (verrà usato il default 7800).
+
+Se `CLAUDE_PLUGIN_ROOT` non è disponibile, esegui prima `swarm_hub_start` per ottenere il percorso assoluto di hub.mjs.
 
 ## Verifica avvio
 
