@@ -103,12 +103,33 @@ server.tool(
   {
     role: z.enum(["leader", "worker"]).optional().describe("Role of this instance (default from env)"),
     task: z.string().optional().describe("Brief description of what this instance is working on"),
+    workerPort: z.number().optional().describe("Port for the worker HTTP server (default: OS-assigned)"),
   },
-  async ({ role, task }) => {
+  async ({ role, task, workerPort }) => {
+    // 1. Avvia server HTTP worker — DEVE essere up prima del POST all'hub (D-01, D-02)
+    //    Evita race condition: se l'hub tentasse push immediatamente dopo registrazione,
+    //    il server deve già essere in ascolto.
+    const portArg = workerPort ? Number(workerPort) : 0;
+    let boundPort;
+    try {
+      const result = await startWorkerServer(portArg);
+      boundPort = result.port;
+    } catch (err) {
+      return {
+        content: [{ type: "text", text: err.message }],
+        isError: true,
+      };
+    }
+
+    // 2. Costruisci callback_url (D-03, D-04)
+    const callbackUrl = `http://${WORKER_HOST}:${boundPort}`;
+
+    // 3. POST all'hub con callback_url inclusa nel body (WORKER-03)
     const body = {
       role: role || ROLE,
       task: task || "idle",
       cwd: process.cwd(),
+      callback_url: callbackUrl,
     };
     if (INSTANCE_ID) body.id = INSTANCE_ID;
 
@@ -120,7 +141,7 @@ server.tool(
       content: [
         {
           type: "text",
-          text: `Registered as ${data.worker?.role} with ID: ${data.worker?.id}\n\n${JSON.stringify(data.worker, null, 2)}`,
+          text: `Registered as ${data.worker?.role} with ID: ${data.worker?.id}\ncallback_url: ${callbackUrl}\n\n${JSON.stringify(data.worker, null, 2)}`,
         },
       ],
     };
