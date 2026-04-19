@@ -40,10 +40,18 @@ function json(res, status, data) {
   res.end(body);
 }
 
-function readBody(req) {
+function readBody(req, maxBytes = 1_048_576 /* 1 MB */) {
   return new Promise((resolve, reject) => {
     const chunks = [];
-    req.on("data", (c) => chunks.push(c));
+    let total = 0;
+    req.on("data", (c) => {
+      total += c.length;
+      if (total > maxBytes) {
+        req.destroy();
+        return reject(new Error("Request body too large"));
+      }
+      chunks.push(c);
+    });
     req.on("end", () => {
       try {
         resolve(JSON.parse(Buffer.concat(chunks).toString()));
