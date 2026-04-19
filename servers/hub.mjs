@@ -67,6 +67,30 @@ function generateId() {
   return crypto.randomBytes(4).toString("hex");
 }
 
+async function pushToWorker(worker, msg) {
+  if (!worker.callback_url) return false;
+  try {
+    const res = await fetch(worker.callback_url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${SECRET}`,
+      },
+      body: JSON.stringify({
+        id: msg.id,
+        from: msg.from,
+        to: msg.to,
+        body: msg.body,
+        timestamp: msg.timestamp,
+      }),
+      signal: AbortSignal.timeout(5000),
+    });
+    return res.ok; // true on 2xx
+  } catch {
+    return false;
+  }
+}
+
 // ── Routes ──────────────────────────────────────────────────────────────────
 
 const routes = {
@@ -135,7 +159,7 @@ const routes = {
       to: body.to, // worker id or "broadcast"
       body: body.body,
       timestamp: new Date().toISOString(),
-      read: false,
+      readBy: new Set(),
     };
     messages.push(msg);
     json(res, 201, { ok: true, message: msg });
@@ -147,10 +171,10 @@ const routes = {
     const unreadOnly = url.searchParams.get("unread") === "true";
     const matching = messages.filter((m) => {
       const isRecipient = m.to === params.workerId || m.to === "broadcast";
-      return unreadOnly ? isRecipient && !m.read : isRecipient;
+      return unreadOnly ? isRecipient && !m.readBy.has(params.workerId) : isRecipient;
     });
-    // Mark as read
-    matching.forEach((m) => { m.read = true; });
+    // Mark as read for this worker
+    matching.forEach((m) => { m.readBy.add(params.workerId); });
     json(res, 200, { messages: matching });
   },
 };
