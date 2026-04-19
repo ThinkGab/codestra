@@ -58,8 +58,8 @@ Plans:
   4. When a worker has no `callback_url` set, the hub silently uses store-and-forward (polling model) unchanged
 **Plans**: 2 plans
 Plans:
-- [ ] 03-01-PLAN.md — Hub data model + push infrastructure (readBy:Set, callback_url on worker, pushToWorker helper, GET route update)
-- [ ] 03-02-PLAN.md — Push delivery in POST /messages (respond-before-push, unicast + broadcast fan-out, readBy marking on success)
+- [x] 03-01-PLAN.md — Hub data model + push infrastructure (readBy:Set, callback_url on worker, pushToWorker helper, GET route update)
+- [x] 03-02-PLAN.md — Push delivery in POST /messages (respond-before-push, unicast + broadcast fan-out, readBy marking on success)
 
 ## Progress
 
