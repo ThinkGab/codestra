@@ -59,7 +59,7 @@ completed: 2026-04-19
 - **Duration:** ~1 min
 - **Started:** 2026-04-19T00:00:03Z
 - **Completed:** 2026-04-19T00:01:00Z
-- **Tasks:** 1 completato (Task 2 = checkpoint human-verify, in attesa)
+- **Tasks:** 2 completati (Task 1 feat + Task 2 human-verify approvato)
 - **Files modified:** 1
 
 ## Accomplishments
@@ -72,6 +72,7 @@ completed: 2026-04-19
 ## Task Commits
 
 1. **Task 1: Add respond-before-push with unicast and broadcast delivery** - `25aa5c6` (feat)
+2. **Task 2: Verify end-to-end push delivery manually** - checkpoint:human-verify — APPROVED by user
 
 ## Files Created/Modified
 
@@ -96,9 +97,23 @@ None - nessuna configurazione di servizi esterni richiesta.
 
 ## Next Phase Readiness
 
-- Push delivery completamente implementato lato hub
-- Task 2 (checkpoint:human-verify) in attesa di verifica manuale end-to-end da parte dell'utente
-- Scenari da verificare: unicast push, broadcast fan-out, fallback silenzioso su worker senza callback_url
+- Push delivery completamente implementato e verificato lato hub
+- Task 2 (checkpoint:human-verify) APPROVATO dall'utente
+- Scenari verificati: unicast push, broadcast fan-out, fallback silenzioso su worker senza callback_url
+- Hub pronto per fasi successive che consumano il comportamento push
+
+## Self-Check: PASSED
+
+- `servers/hub.mjs` FOUND
+- Commit `25aa5c6` FOUND (feat: wire respond-before-push)
+- `setImmediate` presente alla riga 169
+- `Promise.allSettled` presente alla riga 173
+- `msg.to === "broadcast"` presente alla riga 170
+- `msg.readBy.add(worker.id)` presente alle righe 176 e 184
+- `json(res, 201, ...)` alla riga 167 — PRIMA di setImmediate (riga 169)
+- `node --check servers/hub.mjs` → SYNTAX OK
+- Nessun `read: false` residuo
+- Task 2 human-verify: APPROVATO dall'utente
 
 ---
 *Phase: 03-hub-push-delivery*
