@@ -44,8 +44,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Estende mcp-server.mjs con HTTP server in-process, workerRequestHandler, startWorkerServer, modifica swarm_register
-- [ ] 02-02-PLAN.md — Aggiorna SKILL.md codestra-start-worker: attiva workerPort, rimuove note placeholder Fase 1
+- [x] 02-01-PLAN.md — Estende mcp-server.mjs con HTTP server in-process, workerRequestHandler, startWorkerServer, modifica swarm_register
+- [x] 02-02-PLAN.md — Aggiorna SKILL.md codestra-start-worker: attiva workerPort, rimuove note placeholder Fase 1
 
 ### Phase 3: Hub Push Delivery
 **Goal**: The hub delivers messages to workers via HTTP POST to their callback_url, falling back to the polling model when unavailable or unreachable
@@ -66,5 +66,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Slash Command Skills | 1/1 | Complete | 2026-04-19 |
-| 2. Worker HTTP Server | 0/? | Not started | - |
+| 2. Worker HTTP Server | 2/2 | Complete | 2026-04-19 |
 | 3. Hub Push Delivery | 0/? | Not started | - |
