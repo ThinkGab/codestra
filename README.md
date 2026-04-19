@@ -53,7 +53,7 @@ You have one Claude Code instance. It's powerful, but some tasks are too big —
 ### 1. Install the Plugin
 
 ```bash
-claude plugin install codestra.plugin
+claude plugin marketplace add ThinkGab/codestra && claude plugin install codestra@claude-swarm
 ```
 
 ### 2. Install Server Dependencies
