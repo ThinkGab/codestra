@@ -181,7 +181,7 @@ const routes = {
     messages.push(msg);
     // D-03: response contract unchanged — {ok, message}
     // D-07: respond FIRST, push async — sender never hangs waiting for worker
-    json(res, 201, { ok: true, message: msg });
+    json(res, 201, { ok: true, message: { ...msg, readBy: [...msg.readBy] } });
 
     setImmediate(async () => {
       if (msg.to === "broadcast") {
@@ -215,7 +215,7 @@ const routes = {
     });
     // Mark as read for this worker
     matching.forEach((m) => { m.readBy.add(params.workerId); });
-    json(res, 200, { messages: matching });
+    json(res, 200, { messages: matching.map(m => ({ ...m, readBy: [...m.readBy] })) });
   },
 };
 
