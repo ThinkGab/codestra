@@ -8,15 +8,16 @@ Codestra è un plugin per Claude Code che permette di coordinare più istanze Cl
 
 Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazione manuale — basta installare il plugin e lanciare il comando giusto.
 
-## Current Milestone: v1.0 — Bidirectional Swarm Commands
+## Current Milestone: v1.1 — Worker Lifecycle & Hub Improvements
 
-**Goal:** Aggiungere skill `/codestra-start-hub` e `/codestra-start-worker` che configurano e avviano istanze con comunicazione bidirezionale hub↔worker.
+**Goal:** Completare il ciclo di vita del worker (SWARM_ID, polling automatico, shutdown pulito) e fixare comportamenti Hub difettosi.
 
 **Target features:**
-- `/codestra-start-hub [port] [ip]` — skill che avvia l'hub con binding configurabile
-- `/codestra-start-worker [hub-ip] [hub-port]` — skill che avvia worker, espone porta locale, la registra sull'hub
-- Worker HTTP server per ricevere messaggi push dall'hub (bidirezionale)
-- Hub aggiornato: registra `callback_url` del worker, usa push quando disponibile
+- Worker accetta parametro `SWARM_ID` all'avvio (identificatore esplicito dello swarm)
+- Worker avvia polling automatico ogni 10s dopo la registrazione all'hub
+- Uscita da Claude → kill automatico del demone MCP del worker
+- Hub: fix `DELETE /worker` (endpoint non funzionante)
+- Hub: all'avvio inietta prompt Claude per distribuire carico verso workers (non orchestrare da solo se non specificato)
 
 ## Requirements
 
@@ -26,12 +27,20 @@ Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazi
 - [x] **HUB-02**: Hub usa `callback_url` per push diretto al worker (bidirezionale) — Validated in Phase 03: hub-push-delivery
 - [x] **HUB-03**: Hub fa fallback a polling se worker non ha `callback_url` — Validated in Phase 03: hub-push-delivery
 
-### Active
+### Validated (v1.0)
 
-- [ ] **CMD-01**: Utente può avviare hub con `/codestra-start-hub [port] [ip]`
-- [ ] **CMD-02**: Utente può avviare worker con `/codestra-start-worker [hub-ip] [hub-port]`
-- [ ] **WORKER-01**: Worker espone porta HTTP locale al momento della registrazione
-- [ ] **WORKER-02**: Worker comunica `callback_url` all'hub durante `swarm_register`
+- [x] **CMD-01**: Utente può avviare hub con `/codestra-start-hub [port] [ip]` — Validated in Phase 01
+- [x] **CMD-02**: Utente può avviare worker con `/codestra-start-worker [hub-ip] [hub-port]` — Validated in Phase 01
+- [x] **WORKER-01**: Worker espone porta HTTP locale al momento della registrazione — Validated in Phase 02
+- [x] **WORKER-02**: Worker comunica `callback_url` all'hub durante `swarm_register` — Validated in Phase 02
+
+### Active (v1.1)
+
+- [ ] **WORKER-03**: Worker accetta parametro `SWARM_ID` all'avvio
+- [ ] **WORKER-04**: Worker avvia polling automatico ogni 10s dopo registrazione all'hub
+- [ ] **WORKER-05**: Uscita da Claude killa automaticamente il demone MCP del worker
+- [ ] **HUB-04**: Hub fix `DELETE /worker` (endpoint non funzionante)
+- [ ] **HUB-05**: Hub inietta prompt a Claude all'avvio per distribuire carico verso workers
 
 ### Out of Scope
 
@@ -78,4 +87,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-_Last updated: 2026-04-19 — Phase 03 complete: hub push delivery implemented_
+_Last updated: 2026-04-25 — Milestone v1.1 started: worker lifecycle & hub improvements_

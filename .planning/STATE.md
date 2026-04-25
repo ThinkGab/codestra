@@ -1,53 +1,42 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: executing
-stopped_at: Roadmap written, ready to plan Phase 1
-last_updated: "2026-04-19T14:15:12.822Z"
-last_activity: 2026-04-19
+milestone: v1.1
+milestone_name: Worker Lifecycle & Hub Improvements
+status: planning
+stopped_at: Defining requirements
+last_updated: "2026-04-25T21:05:00.000Z"
+last_activity: 2026-04-25
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # STATE.md
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-19)
+See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Claude Code plugin enabling multiple Claude instances to coordinate as a swarm via a central hub
-**Current focus:** Phase 01 — slash-command-skills
+**Current focus:** Milestone v1.1 — Worker Lifecycle & Hub Improvements
 
 ## Current Position
 
-Phase: 02
-Plan: Not started
-Status: Executing Phase 01
-Last activity: 2026-04-19
-
-Progress: [██████░░░░] 67%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-25 — Milestone v1.1 started
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6
+- Total plans completed: 6 (v1.0)
 - Average duration: —
 - Total execution time: —
-
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 1. Slash Command Skills | 1 | 2026-04-19 | — |
-| 2. Worker HTTP Server | 2 | 2026-04-19 | — |
-| 03 | 2 | - | - |
-| 01 | 1 | - | - |
 
 *Updated after each plan completion*
 
@@ -76,6 +65,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19
-Stopped at: Roadmap written, ready to plan Phase 1
+Last session: 2026-04-25
+Stopped at: Milestone v1.1 started, defining requirements
 Resume file: None
