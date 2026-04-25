@@ -24,7 +24,9 @@ Milestone v1.1 completes the worker lifecycle (SWARM_ID propagation, automatic p
   2. A `DELETE /worker/:id` for an unknown ID returns a clear error response (not a silent success or crash)
   3. When `hub.mjs` starts, it injects a system prompt into the Claude session instructing it to delegate tasks to registered workers rather than executing them directly
   4. The injected prompt is visible as a tool result or assistant message in the Claude Code session immediately after hub startup
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 04-01-PLAN.md — Fix DELETE 404 + inject swarm_hub_start system prompt
 
 ### Phase 5: Worker Lifecycle
 **Goal**: Workers are self-identifying (SWARM_ID), self-polling, and leave no orphaned processes when Claude exits
