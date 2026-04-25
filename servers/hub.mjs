@@ -169,7 +169,8 @@ const routes = {
   // Remove a worker
   "DELETE /workers/:id": (_req, res, params) => {
     const deleted = workers.delete(params.id);
-    json(res, 200, { ok: true, deleted });
+    if (!deleted) return json(res, 404, { error: "Worker not found" });
+    json(res, 200, { ok: true });
   },
 
   // Send a message
