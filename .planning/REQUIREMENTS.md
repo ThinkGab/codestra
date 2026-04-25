@@ -29,8 +29,8 @@
 
 | REQ-ID | Phase | Plan | Status |
 |--------|-------|------|--------|
-| WORKER-03 | TBD | TBD | Pending |
-| WORKER-04 | TBD | TBD | Pending |
-| WORKER-05 | TBD | TBD | Pending |
-| HUB-04 | TBD | TBD | Pending |
-| HUB-05 | TBD | TBD | Pending |
+| HUB-04 | Phase 4 | TBD | Pending |
+| HUB-05 | Phase 4 | TBD | Pending |
+| WORKER-03 | Phase 5 | TBD | Pending |
+| WORKER-04 | Phase 5 | TBD | Pending |
+| WORKER-05 | Phase 5 | TBD | Pending |

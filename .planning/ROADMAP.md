@@ -1,73 +1,48 @@
-# Roadmap: Codestra — Milestone v1.0: Bidirectional Swarm Commands
+# Roadmap: Codestra — Milestone v1.1: Worker Lifecycle & Hub Improvements
 
 ## Overview
 
-Codestra is a Claude Code plugin for multi-agent swarm orchestration. Milestone v1.0 delivers bidirectional communication between the hub and worker instances. The three phases build in dependency order: first the slash command skills that let users invoke the system, then the worker HTTP server that enables workers to receive push delivery, then the hub-side push logic that uses those worker endpoints.
+Milestone v1.1 completes the worker lifecycle (SWARM_ID propagation, automatic polling, clean shutdown) and fixes two hub-side gaps (DELETE route correctness, load-distribution system prompt). Both phases are independent of each other in delivery but Phase 5 (worker-side) benefits from a working hub DELETE, so Phase 4 executes first.
 
 ## Phases
 
 **Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+- Integer phases (4, 5): v1.1 planned milestone work (continuing from v1.0 which ended at Phase 3)
+- Decimal phases: Urgent insertions if needed mid-milestone
 
-Decimal phases appear between their surrounding integers in numeric order.
-
-- [x] **Phase 1: Slash Command Skills** - SKILL.md content for `/codestra-start-hub` and `/codestra-start-worker` *(completed 2026-04-19)*
-- [x] **Phase 2: Worker HTTP Server** - Worker starts local HTTP server and registers its callback_url with the hub *(completed 2026-04-19)*
-- [x] **Phase 3: Hub Push Delivery** - Hub POSTs to worker callback_url with silent fallback to polling *(completed 2026-04-19)*
+- [ ] **Phase 4: Hub Fixes** - Fix DELETE /worker/:id and inject load-distribution system prompt at hub startup
+- [ ] **Phase 5: Worker Lifecycle** - Worker accepts SWARM_ID at startup, starts automatic polling after registration, and kills its MCP daemon on Claude exit
 
 ## Phase Details
 
-### Phase 1: Slash Command Skills
-**Goal**: Users can invoke `/codestra-start-hub` and `/codestra-start-worker` from Claude Code with correct arguments
-**Depends on**: Nothing (first phase)
-**Requirements**: CMD-01, CMD-02
+### Phase 4: Hub Fixes
+**Goal**: The hub correctly removes workers on DELETE and instructs Claude to distribute load across registered workers at startup
+**Depends on**: Nothing (server-side fixes, independent)
+**Requirements**: HUB-04, HUB-05
 **Success Criteria** (what must be TRUE):
-  1. User can run `/codestra-start-hub` and Claude Code presents correct port/ip argument guidance
-  2. User can run `/codestra-start-hub [port] [ip]` and the skill content directs Claude to start the hub with the specified binding
-  3. User can run `/codestra-start-worker [hub-ip] [hub-port] [worker-port?]` and the skill content directs Claude to register this instance as a worker
-  4. Both skill files exist under `skills/` and are surfaced as Claude Code slash commands via the plugin manifest
-**Plans**: 1 plan
+  1. After calling `DELETE /worker/:id`, the worker is absent from subsequent `GET /workers` responses and receives no further messages
+  2. A `DELETE /worker/:id` for an unknown ID returns a clear error response (not a silent success or crash)
+  3. When `hub.mjs` starts, it injects a system prompt into the Claude session instructing it to delegate tasks to registered workers rather than executing them directly
+  4. The injected prompt is visible as a tool result or assistant message in the Claude Code session immediately after hub startup
+**Plans**: TBD
 
-Plans:
-- [x] 01-01-PLAN.md — Rinomina skill directory, aggiorna manifest (name: codestra), scrivi SKILL.md per hub e worker
-
-### Phase 2: Worker HTTP Server
-**Goal**: A worker instance starts a local HTTP server on slash command execution and communicates its callback_url to the hub during registration
-**Depends on**: Phase 1
-**Requirements**: WORKER-01, WORKER-02, WORKER-03
+### Phase 5: Worker Lifecycle
+**Goal**: Workers are self-identifying (SWARM_ID), self-polling, and leave no orphaned processes when Claude exits
+**Depends on**: Phase 4
+**Requirements**: WORKER-03, WORKER-04, WORKER-05
 **Success Criteria** (what must be TRUE):
-  1. After `/codestra-start-worker` is invoked, `mcp-server.mjs` starts an HTTP server bound to a port (OS-assigned by default, or a custom port if specified)
-  2. The worker's actual bound port is discoverable after server start (OS-assigned port 0 resolves to a real port)
-  3. The `swarm_register` call to the hub includes a `callback_url` field containing `http://<host>:<port>`
-  4. Worker HTTP server stays running and can receive inbound HTTP requests on its bound port
-**Plans**: 2 plans
-
-Plans:
-- [x] 02-01-PLAN.md — Estende mcp-server.mjs con HTTP server in-process, workerRequestHandler, startWorkerServer, modifica swarm_register
-- [x] 02-02-PLAN.md — Aggiorna SKILL.md codestra-start-worker: attiva workerPort, rimuove note placeholder Fase 1
-
-### Phase 3: Hub Push Delivery
-**Goal**: The hub delivers messages to workers via HTTP POST to their callback_url, falling back to the polling model when unavailable or unreachable
-**Depends on**: Phase 2
-**Requirements**: HUB-01, HUB-02, HUB-03
-**Success Criteria** (what must be TRUE):
-  1. When a worker registers with a `callback_url`, the hub stores that URL in the worker's record in the in-memory Map
-  2. When a message is sent to a worker that has a `callback_url`, the hub POSTs the message payload to that URL
-  3. When the hub POST to `callback_url` fails (network error, non-2xx response), the message remains available via the existing polling endpoint without surfacing an error to the sender
-  4. When a worker has no `callback_url` set, the hub silently uses store-and-forward (polling model) unchanged
-**Plans**: 2 plans
-Plans:
-- [x] 03-01-PLAN.md — Hub data model + push infrastructure (readBy:Set, callback_url on worker, pushToWorker helper, GET route update)
-- [x] 03-02-PLAN.md — Push delivery in POST /messages (respond-before-push, unicast + broadcast fan-out, readBy marking on success)
+  1. Running `/codestra-start-worker [hub-ip] [hub-port] [worker-port] [swarm-id]` passes the SWARM_ID argument to `mcp-server.mjs` and the hub registration payload includes that ID
+  2. After a successful `swarm_register` call, `mcp-server.mjs` begins polling the hub every 10 seconds without any additional user action
+  3. The polling loop runs in the background and does not block MCP tool execution
+  4. When the Claude Code instance that started `mcp-server.mjs` exits, the MCP daemon process terminates automatically (no orphan process left behind)
+**Plans**: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
+Phases execute in numeric order: 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Slash Command Skills | 1/1 | Complete | 2026-04-19 |
-| 2. Worker HTTP Server | 2/2 | Complete | 2026-04-19 |
-| 3. Hub Push Delivery | 0/2 | Ready to execute | - |
+| 4. Hub Fixes | 0/0 | Not started | - |
+| 5. Worker Lifecycle | 0/0 | Not started | - |

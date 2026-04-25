@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Worker Lifecycle & Hub Improvements
 status: planning
-stopped_at: Defining requirements
-last_updated: "2026-04-25T21:05:00.000Z"
+stopped_at: Roadmap created — ready for Phase 4 planning
+last_updated: "2026-04-25T21:10:00.000Z"
 last_activity: 2026-04-25
 progress:
-  total_phases: 0
+  total_phases: 2
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -25,10 +25,14 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Phase 4 — Hub Fixes (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-25 — Milestone v1.1 started
+Status: Roadmap complete, ready for Phase 4 planning
+Last activity: 2026-04-25 — v1.1 roadmap created (2 phases, 5 requirements mapped)
+
+```
+Progress: [----------] 0% (0/2 phases)
+```
 
 ## Performance Metrics
 
@@ -48,10 +52,11 @@ Last activity: 2026-04-25 — Milestone v1.1 started
 - `${CLAUDE_PLUGIN_ROOT}` expanded by Claude Code to plugin install path
 - No TypeScript, no framework — Node.js ESM only throughout
 - Extend existing `hub.mjs` (plain node:http) and `mcp-server.mjs` (@modelcontextprotocol/sdk), do not replace
+- v1.1 phase numbering starts at 4 (v1.0 ended at Phase 3)
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
@@ -66,5 +71,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-25
-Stopped at: Milestone v1.1 started, defining requirements
+Stopped at: v1.1 roadmap written — Phase 4 (Hub Fixes) and Phase 5 (Worker Lifecycle) defined
 Resume file: None
