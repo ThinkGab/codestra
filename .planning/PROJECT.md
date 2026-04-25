@@ -39,8 +39,8 @@ Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazi
 - [ ] **WORKER-03**: Worker accetta parametro `SWARM_ID` all'avvio
 - [ ] **WORKER-04**: Worker avvia polling automatico ogni 10s dopo registrazione all'hub
 - [ ] **WORKER-05**: Uscita da Claude killa automaticamente il demone MCP del worker
-- [ ] **HUB-04**: Hub fix `DELETE /worker` (endpoint non funzionante)
-- [ ] **HUB-05**: Hub inietta prompt a Claude all'avvio per distribuire carico verso workers
+- [x] **HUB-04**: Hub fix `DELETE /worker` (endpoint non funzionante) — Validated in Phase 04: hub-fixes
+- [x] **HUB-05**: Hub inietta prompt a Claude all'avvio per distribuire carico verso workers — Validated in Phase 04: hub-fixes
 
 ### Out of Scope
 
