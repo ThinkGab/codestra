@@ -315,7 +315,7 @@ server.tool(
   async ({ workerId }) => {
     const data = await hubFetch(`/workers/${workerId}`, { method: "DELETE" });
     return {
-      content: [{ type: "text", text: data.deleted ? `Worker ${workerId} removed.` : `Worker ${workerId} not found.` }],
+      content: [{ type: "text", text: data.ok ? `Worker ${workerId} removed.` : `Worker ${workerId} not found.` }],
     };
   }
 );
