@@ -10,7 +10,7 @@ Milestone v1.1 completes the worker lifecycle (SWARM_ID propagation, automatic p
 - Integer phases (4, 5): v1.1 planned milestone work (continuing from v1.0 which ended at Phase 3)
 - Decimal phases: Urgent insertions if needed mid-milestone
 
-- [ ] **Phase 4: Hub Fixes** - Fix DELETE /worker/:id and inject load-distribution system prompt at hub startup
+- [x] **Phase 4: Hub Fixes** - Fix DELETE /worker/:id and inject load-distribution system prompt at hub startup (2026-04-25)
 - [ ] **Phase 5: Worker Lifecycle** - Worker accepts SWARM_ID at startup, starts automatic polling after registration, and kills its MCP daemon on Claude exit
 
 ## Phase Details
@@ -26,7 +26,7 @@ Milestone v1.1 completes the worker lifecycle (SWARM_ID propagation, automatic p
   4. The injected prompt is visible as a tool result or assistant message in the Claude Code session immediately after hub startup
 **Plans**: 1 plan
 Plans:
-- [ ] 04-01-PLAN.md — Fix DELETE 404 + inject swarm_hub_start system prompt
+- [x] 04-01-PLAN.md — Fix DELETE 404 + inject swarm_hub_start system prompt (2026-04-25)
 
 ### Phase 5: Worker Lifecycle
 **Goal**: Workers are self-identifying (SWARM_ID), self-polling, and leave no orphaned processes when Claude exits
@@ -46,5 +46,5 @@ Phases execute in numeric order: 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 4. Hub Fixes | 0/0 | Not started | - |
+| 4. Hub Fixes | 1/1 | Complete | 2026-04-25 |
 | 5. Worker Lifecycle | 0/0 | Not started | - |
