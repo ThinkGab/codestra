@@ -261,17 +261,21 @@ server.tool(
   "List all workers currently registered with the hub, showing their role, status, task, and host.",
   {},
   async () => {
-    const data = await hubFetch("/workers");
-    if (!data.workers || data.workers.length === 0) {
-      return { content: [{ type: "text", text: "No workers registered." }] };
+    try {
+      const data = await hubFetch("/workers");
+      if (!data.workers || data.workers.length === 0) {
+        return { content: [{ type: "text", text: "No workers registered." }] };
+      }
+      const table = data.workers
+        .map(
+          (w) =>
+            `- **${w.id}** [${w.role}] status=${w.status} | task="${w.task}" | host=${w.host} | last_seen=${w.lastSeen}`
+        )
+        .join("\n");
+      return { content: [{ type: "text", text: `## Swarm Workers (${data.workers.length})\n\n${table}` }] };
+    } catch (err) {
+      return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
     }
-    const table = data.workers
-      .map(
-        (w) =>
-          `- **${w.id}** [${w.role}] status=${w.status} | task="${w.task}" | host=${w.host} | last_seen=${w.lastSeen}`
-      )
-      .join("\n");
-    return { content: [{ type: "text", text: `## Swarm Workers (${data.workers.length})\n\n${table}` }] };
   }
 );
 
@@ -286,18 +290,22 @@ server.tool(
     body: z.string().describe("Message content"),
   },
   async ({ from, to, body }) => {
-    const data = await hubFetch("/messages", {
-      method: "POST",
-      body: JSON.stringify({ from, to, body }),
-    });
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Message sent: ${from} → ${to}\n\n${JSON.stringify(data.message, null, 2)}`,
-        },
-      ],
-    };
+    try {
+      const data = await hubFetch("/messages", {
+        method: "POST",
+        body: JSON.stringify({ from, to, body }),
+      });
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Message sent: ${from} → ${to}\n\n${JSON.stringify(data.message, null, 2)}`,
+          },
+        ],
+      };
+    } catch (err) {
+      return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
+    }
   }
 );
 
@@ -311,15 +319,19 @@ server.tool(
     all: z.boolean().optional().describe("If true, return all messages (not just unread)"),
   },
   async ({ workerId, all }) => {
-    const query = all ? "" : "?unread=true";
-    const data = await hubFetch(`/messages/${workerId}${query}`);
-    if (!data.messages || data.messages.length === 0) {
-      return { content: [{ type: "text", text: "No messages." }] };
+    try {
+      const query = all ? "" : "?unread=true";
+      const data = await hubFetch(`/messages/${workerId}${query}`);
+      if (!data.messages || data.messages.length === 0) {
+        return { content: [{ type: "text", text: "No messages." }] };
+      }
+      const formatted = data.messages
+        .map((m) => `[${m.timestamp}] **${m.from}** → ${m.to}: ${m.body}`)
+        .join("\n\n");
+      return { content: [{ type: "text", text: `## Messages (${data.messages.length})\n\n${formatted}` }] };
+    } catch (err) {
+      return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
     }
-    const formatted = data.messages
-      .map((m) => `[${m.timestamp}] **${m.from}** → ${m.to}: ${m.body}`)
-      .join("\n\n");
-    return { content: [{ type: "text", text: `## Messages (${data.messages.length})\n\n${formatted}` }] };
   }
 );
 
@@ -334,16 +346,20 @@ server.tool(
     task: z.string().optional().describe("Updated task description"),
   },
   async ({ workerId, status, task }) => {
-    const body = {};
-    if (status) body.status = status;
-    if (task) body.task = task;
-    const data = await hubFetch(`/workers/${workerId}`, {
-      method: "PATCH",
-      body: JSON.stringify(body),
-    });
-    return {
-      content: [{ type: "text", text: `Worker updated:\n${JSON.stringify(data.worker, null, 2)}` }],
-    };
+    try {
+      const body = {};
+      if (status) body.status = status;
+      if (task) body.task = task;
+      const data = await hubFetch(`/workers/${workerId}`, {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      });
+      return {
+        content: [{ type: "text", text: `Worker updated:\n${JSON.stringify(data.worker, null, 2)}` }],
+      };
+    } catch (err) {
+      return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
+    }
   }
 );
 
@@ -356,10 +372,14 @@ server.tool(
     workerId: z.string().describe("Worker ID to remove"),
   },
   async ({ workerId }) => {
-    const data = await hubFetch(`/workers/${workerId}`, { method: "DELETE" });
-    return {
-      content: [{ type: "text", text: data.ok ? `Worker ${workerId} removed.` : `Worker ${workerId} not found.` }],
-    };
+    try {
+      const data = await hubFetch(`/workers/${workerId}`, { method: "DELETE" });
+      return {
+        content: [{ type: "text", text: data.ok ? `Worker ${workerId} removed.` : `Worker ${workerId} not found.` }],
+      };
+    } catch (err) {
+      return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
+    }
   }
 );
 
