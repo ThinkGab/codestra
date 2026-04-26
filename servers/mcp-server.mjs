@@ -98,7 +98,7 @@ server.tool(
 
 // ── Module-level lifecycle state ─────────────────────────────────────────────
 let httpServer;      // set by swarm_register handler
-let pollInterval;    // set by swarm_register handler (polling fallback only)
+let pollInterval;    // set by swarm_register handler (WORKER-04 heartbeat)
 
 // ── Tool: register_self ─────────────────────────────────────────────────────
 
@@ -146,19 +146,19 @@ server.tool(
       body: JSON.stringify(body),
     });
 
-    // D-04: only start polling if no callback_url was registered (fallback path)
-    if (!callbackUrl) {
-      pollInterval = setInterval(async () => {
-        try {
-          const msgs = await hubFetch(`/messages/${resolvedId}?unread=true`);
-          if (msgs.messages && msgs.messages.length > 0) {
-            process.stdout.write(`[worker-poll] ${JSON.stringify(msgs.messages)}\n`);
-          }
-        } catch {
-          // D-11: silent skip on network error — retry at next interval
+    // WORKER-04: avvia polling heartbeat dopo ogni registrazione riuscita.
+    // callbackUrl e' sempre presente nell'architettura attuale (HTTP server
+    // avviato prima del POST), quindi il polling parte sempre — non e' un fallback.
+    pollInterval = setInterval(async () => {
+      try {
+        const msgs = await hubFetch(`/messages/${resolvedId}?unread=true`);
+        if (msgs.messages && msgs.messages.length > 0) {
+          process.stdout.write(`[worker-poll] ${JSON.stringify(msgs.messages)}\n`);
         }
-      }, 10_000); // D-05: 10 second interval
-    }
+      } catch {
+        // D-11: silent skip on network error — retry at next interval
+      }
+    }, 10_000); // D-05: 10 second interval
 
     return {
       content: [
