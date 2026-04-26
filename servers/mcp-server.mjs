@@ -145,6 +145,21 @@ server.tool(
       method: "POST",
       body: JSON.stringify(body),
     });
+
+    // D-04: only start polling if no callback_url was registered (fallback path)
+    if (!callbackUrl) {
+      pollInterval = setInterval(async () => {
+        try {
+          const msgs = await hubFetch(`/messages/${resolvedId}?unread=true`);
+          if (msgs.messages && msgs.messages.length > 0) {
+            process.stdout.write(`[worker-poll] ${JSON.stringify(msgs.messages)}\n`);
+          }
+        } catch {
+          // D-11: silent skip on network error — retry at next interval
+        }
+      }, 10_000); // D-05: 10 second interval
+    }
+
     return {
       content: [
         {
@@ -401,3 +416,11 @@ function startWorkerServer(port = 0) {
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
+
+// ── Shutdown detection (D-08, D-09) ─────────────────────────────────────────
+function cleanup() {
+  clearInterval(pollInterval);   // no-op if undefined (safe in Node.js)
+  if (httpServer) httpServer.close();
+}
+
+process.stdin.on('close', cleanup);
