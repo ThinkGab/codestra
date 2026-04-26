@@ -29,6 +29,9 @@ const workers = new Map();
 /** @type {Array<{id: string, from: string, to: string, body: string, timestamp: string, read: boolean}>} */
 const messages = [];
 
+/** @type {Map<string, {id: string, swarmId: string, filename: string, content: Buffer, size: number, mimeType: string, uploadedAt: string}>} */
+const files = new Map();
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function json(res, status, data) {
@@ -59,6 +62,25 @@ function readBody(req, maxBytes = 1_048_576 /* 1 MB */) {
         resolve({});
       }
     });
+    req.on("error", reject);
+  });
+}
+
+function readRawBody(req, maxBytes = 10_485_760 /* 10 MB */) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let total = 0;
+    req.on("data", (c) => {
+      total += c.length;
+      if (total > maxBytes) {
+        req.destroy();
+        const err = new Error("Request body too large");
+        err.code = "BODY_TOO_LARGE";
+        return reject(err);
+      }
+      chunks.push(c);
+    });
+    req.on("end", () => resolve(Buffer.concat(chunks)));
     req.on("error", reject);
   });
 }
