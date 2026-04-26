@@ -37,7 +37,10 @@ Plans:
   2. After a successful `swarm_register` call, `mcp-server.mjs` begins polling the hub every 10 seconds without any additional user action
   3. The polling loop runs in the background and does not block MCP tool execution
   4. When the Claude Code instance that started `mcp-server.mjs` exits, the MCP daemon process terminates automatically (no orphan process left behind)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 05-01-PLAN.md — Add swarmId param, conditional polling, and stdin-close cleanup to mcp-server.mjs (WORKER-03, WORKER-04, WORKER-05)
+- [ ] 05-02-PLAN.md — Update codestra-start-worker SKILL.md signature and invocation instructions (WORKER-03)
 
 ## Progress
 
@@ -47,4 +50,4 @@ Phases execute in numeric order: 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 4. Hub Fixes | 1/1 | Complete | 2026-04-25 |
-| 5. Worker Lifecycle | 0/0 | Not started | - |
+| 5. Worker Lifecycle | 0/2 | Not started | - |
