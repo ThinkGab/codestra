@@ -191,11 +191,17 @@ server.tool(
     ];
     if (SECRET) envVars.push(`SWARM_SECRET="${SECRET}"`);
 
-    const escapedTask = task.replace(/"/g, '\\"').replace(/\n/g, "\\n");
+    const safeWorkDir = JSON.stringify(workDir); // produces "path/with spaces" safely
+    const escapedTask = task
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/`/g, '\\`')
+      .replace(/\$/g, '\\$');
 
     const cmd = [
       `# Worker ${workerId} — run in a new terminal`,
-      `cd ${workDir}`,
+      `cd ${safeWorkDir}`,
       `${envVars.join(" ")} claude --print "${escapedTask}"`,
     ].join("\n");
 
