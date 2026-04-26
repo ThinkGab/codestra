@@ -70,18 +70,20 @@ function readRawBody(req, maxBytes = 10_485_760 /* 10 MB */) {
   return new Promise((resolve, reject) => {
     const chunks = [];
     let total = 0;
+    let rejected = false;
     req.on("data", (c) => {
+      if (rejected) return;
       total += c.length;
       if (total > maxBytes) {
-        req.destroy();
+        rejected = true;
         const err = new Error("Request body too large");
         err.code = "BODY_TOO_LARGE";
         return reject(err);
       }
       chunks.push(c);
     });
-    req.on("end", () => resolve(Buffer.concat(chunks)));
-    req.on("error", reject);
+    req.on("end", () => { if (!rejected) resolve(Buffer.concat(chunks)); });
+    req.on("error", (e) => { if (!rejected) reject(e); });
   });
 }
 
@@ -247,6 +249,72 @@ const routes = {
     // Mark as read for this worker
     matching.forEach((m) => { m.readBy.add(params.workerId); });
     json(res, 200, { messages: matching.map(m => ({ ...m, readBy: [...m.readBy] })) });
+  },
+
+  // Upload a file (per D-03)
+  "PUT /files/:swarmId/:filename": async (req, res, params) => {
+    let content;
+    try {
+      content = await readRawBody(req);
+    } catch (err) {
+      if (err.code === "BODY_TOO_LARGE") {
+        // Drain remaining bytes so the socket stays open long enough to deliver the 413
+        req.resume();
+        await new Promise((r) => req.on("close", r).on("end", r));
+        return json(res, 413, { error: "File too large (max 10 MB)" });
+      }
+      throw err;
+    }
+    const { swarmId, filename } = params;
+    const mimeType = req.headers["content-type"] || "application/octet-stream";
+
+    // D-02: replace existing entry for same swarm+filename silently
+    for (const [existingId, f] of files) {
+      if (f.swarmId === swarmId && f.filename === filename) {
+        files.delete(existingId);
+        break;
+      }
+    }
+
+    const id = crypto.randomUUID();
+    const entry = { id, swarmId, filename, content, size: content.length, mimeType, uploadedAt: new Date().toISOString() };
+    files.set(id, entry);
+    json(res, 200, { id, filename, size: entry.size, mimeType, uploadedAt: entry.uploadedAt });
+  },
+
+  // Download a file with pagination (per D-04)
+  "GET /files/:swarmId/:filename": (req, res, params) => {
+    const { swarmId, filename } = params;
+    const entry = [...files.values()].find(f => f.swarmId === swarmId && f.filename === filename);
+    if (!entry) return json(res, 404, { error: "File not found" });
+
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const offset    = parseInt(url.searchParams.get("offset")    ?? "0",       10);
+    const max_bytes = parseInt(url.searchParams.get("max_bytes") ?? "1000000", 10);
+
+    const slice   = entry.content.slice(offset, offset + max_bytes);
+    const has_more = offset + slice.length < entry.content.length;
+    json(res, 200, { content: slice.toString("utf8"), offset, total_size: entry.size, has_more });
+  },
+
+  // List all files in a swarm (per D-05)
+  "GET /files/:swarmId": (_req, res, params) => {
+    const list = [...files.values()]
+      .filter(f => f.swarmId === params.swarmId)
+      .map(({ id, filename, size, mimeType, uploadedAt }) => ({ id, filename, size, mimeType, uploadedAt }));
+    json(res, 200, list);
+  },
+
+  // Delete a file by filename in swarm namespace (per D-06)
+  "DELETE /files/:swarmId/:filename": (_req, res, params) => {
+    const { swarmId, filename } = params;
+    let found = null;
+    for (const [id, f] of files) {
+      if (f.swarmId === swarmId && f.filename === filename) { found = id; break; }
+    }
+    if (!found) return json(res, 404, { error: "File not found" });
+    files.delete(found);
+    json(res, 200, { deleted: true });
   },
 };
 
