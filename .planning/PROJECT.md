@@ -34,11 +34,11 @@ Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazi
 - [x] **WORKER-01**: Worker espone porta HTTP locale al momento della registrazione — Validated in Phase 02
 - [x] **WORKER-02**: Worker comunica `callback_url` all'hub durante `swarm_register` — Validated in Phase 02
 
-### Active (v1.1)
+### Validated (v1.1)
 
-- [ ] **WORKER-03**: Worker accetta parametro `SWARM_ID` all'avvio
-- [ ] **WORKER-04**: Worker avvia polling automatico ogni 10s dopo registrazione all'hub
-- [ ] **WORKER-05**: Uscita da Claude killa automaticamente il demone MCP del worker
+- [x] **WORKER-03**: Worker accetta parametro `SWARM_ID` all'avvio — Validated in Phase 05: worker-lifecycle
+- [x] **WORKER-04**: Worker avvia polling automatico ogni 10s dopo registrazione all'hub — Validated in Phase 05: worker-lifecycle (gap-closure 05-03)
+- [x] **WORKER-05**: Uscita da Claude killa automaticamente il demone MCP del worker — Validated in Phase 05: worker-lifecycle
 - [x] **HUB-04**: Hub fix `DELETE /worker` (endpoint non funzionante) — Validated in Phase 04: hub-fixes
 - [x] **HUB-05**: Hub inietta prompt a Claude all'avvio per distribuire carico verso workers — Validated in Phase 04: hub-fixes
 
@@ -87,4 +87,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-_Last updated: 2026-04-25 — Milestone v1.1 started: worker lifecycle & hub improvements_
+_Last updated: 2026-04-26 — Milestone v1.1 complete: all worker lifecycle & hub improvements validated_

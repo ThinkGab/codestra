@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: milestone
-status: in_progress
-stopped_at: Phase 5 gap-closure planned — WORKER-04 fix ready to execute
-last_updated: "2026-04-26T09:14:00.000Z"
-last_activity: 2026-04-26 — Phase 5 gap-closure plan 05-03 verified (WORKER-04 polling dead code)
+status: complete
+stopped_at: Phase 5 complete — Milestone v1.1 done
+last_updated: "2026-04-26T09:18:00.000Z"
+last_activity: 2026-04-26 — Phase 5 verified and complete (WORKER-03/04/05 all satisfied)
 progress:
   total_phases: 2
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 3
-  percent: 50
+  completed_phases: 2
+  total_plans: 5
+  completed_plans: 5
+  percent: 100
 ---
 
 # STATE.md
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: Phase 5 — Worker Lifecycle (gap-closure planned — ready to execute)
-Plan: 05-01-PLAN.md, 05-02-PLAN.md, 05-03-PLAN.md
-Status: Phase 5 gap-closure planned — 3 plans verified, ready to execute (WORKER-04 fix pending)
-Last activity: 2026-04-26 — Phase 5 gap-closure plan 05-03 created and verified (WORKER-04 polling dead code fixed)
+Phase: Milestone v1.1 Complete
+Plan: All plans complete (04-01, 05-01, 05-02, 05-03 gap-closure)
+Status: Milestone v1.1 done — all 5 requirements satisfied (HUB-04, HUB-05, WORKER-03, WORKER-04, WORKER-05)
+Last activity: 2026-04-26 — Phase 5 verified complete; 1 human UAT item pending (WORKER-05 orphan process runtime test)
 
 ```
 Progress: [█████-----] 50% (1/2 phases)
