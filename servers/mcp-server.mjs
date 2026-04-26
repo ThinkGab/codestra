@@ -112,6 +112,10 @@ server.tool(
     swarmId: z.string().optional().describe("Swarm ID for this instance (overrides SWARM_ID env var)"),
   },
   async ({ role, task, workerPort, swarmId }) => {
+    // WR-03: clean up previous lifecycle resources if re-registering
+    if (pollInterval) { clearInterval(pollInterval); pollInterval = undefined; }
+    if (httpServer)   { httpServer.close(); httpServer = undefined; }
+
     // 1. Avvia server HTTP worker — DEVE essere up prima del POST all'hub (D-01, D-02)
     //    Evita race condition: se l'hub tentasse push immediatamente dopo registrazione,
     //    il server deve già essere in ascolto.
@@ -141,10 +145,17 @@ server.tool(
     const resolvedId = swarmId || INSTANCE_ID;   // param wins over env (D-02)
     if (resolvedId) body.id = resolvedId;
 
-    const data = await hubFetch("/workers", {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
+    let data;
+    try {
+      data = await hubFetch("/workers", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+    } catch (err) {
+      // Hub unreachable — close the HTTP server we just started to avoid leak
+      httpServer.close(); httpServer = undefined;
+      return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
+    }
 
     // Capture hub-assigned ID if none was provided (WR-01)
     const assignedId = resolvedId || data.worker?.id || "";
