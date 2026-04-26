@@ -1,7 +1,7 @@
 ---
 name: codestra-start-worker
 description: Registra questa istanza Claude Code come worker nel Swarm Hub Codestra. Specificare l'indirizzo IP e la porta dell'hub. Il worker-port è opzionale (sarà utilizzato nella Fase 2 per comunicazione push bidirezionale).
-argument-hint: [hub-ip] [hub-port] [worker-port?]
+argument-hint: [hub-ip] [hub-port] [worker-port?] [swarm-id?]
 disable-model-invocation: true
 ---
 
@@ -13,6 +13,7 @@ Parametri:
 - Hub IP (`$0`): indirizzo IP dell'istanza hub (es. `192.168.1.10` o `localhost`).
 - Hub Port (`$1`): porta dell'hub (es. `7800`). Default: 7800 se non specificato.
 - Worker Port (`$2`): opzionale — porta per il server HTTP del worker. Se fornito, passare come `workerPort` al tool `swarm_register`. Se omesso, l'OS assegna automaticamente una porta libera.
+- Swarm ID (`$3`): opzionale — ID univoco da assegnare a questo worker. Se fornito, passare come `swarmId` al tool `swarm_register`. Se omesso, il MCP server usa `SWARM_ID` dall'env (se configurata).
 
 ## Prerequisito
 
@@ -43,6 +44,7 @@ Una volta verificato che `SWARM_HUB_URL` punta all'hub corretto:
    - `role`: `"worker"` (oppure ometti se `SWARM_ROLE` è già configurata nell'env)
    - `task`: breve descrizione del lavoro che questo worker svolgerà (chiedere all'utente se non noto)
    - `workerPort`: se `$2` è fornito, passare il suo valore numerico; altrimenti omettere (l'OS assegnerà la porta)
+   - `swarmId`: se `$3` è fornito, passare il suo valore stringa; altrimenti omettere (il server usa l'env var)
 
 2. Verifica la risposta del tool — deve contenere un worker ID assegnato dall'hub.
 
