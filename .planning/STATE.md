@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: MCP File Transport
-status: defining_requirements
-stopped_at: Milestone v1.2 started — defining requirements
-last_updated: "2026-04-26T20:49:00.000Z"
-last_activity: 2026-04-26 — Milestone v1.2 started
+status: ready_to_plan
+stopped_at: Roadmap created — Phase 6 is next
+last_updated: "2026-04-26T21:11:00.000Z"
+last_activity: 2026-04-26 — Roadmap created for v1.2
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -25,10 +25,18 @@ See: .planning/PROJECT.md (updated 2026-04-26)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 6 — Hub File Routes
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-26 — Milestone v1.2 started
+Status: Ready to plan
+Last activity: 2026-04-26 — Roadmap created
+
+```
+[Phase 6] [ ] [ ]
+ ^^^^^^^^
+ Current
+```
+
+Progress: 0/3 phases complete (0%)
 
 ## Performance Metrics
 
@@ -50,6 +58,9 @@ Last activity: 2026-04-26 — Milestone v1.2 started
 - Extend existing `hub.mjs` (plain node:http) and `mcp-server.mjs` (@modelcontextprotocol/sdk), do not replace
 - v1.2 phase numbering starts at 6 (v1.1 ended at Phase 5)
 - File storage in-memory (coerente con filosofia v1.x — no persistenza)
+- Files keyed by UUID in hub Map; client filename is metadata only — no filesystem exposure
+- file_download pagination schema must be included from day one (breaking change if retrofitted)
+- Upload limit: 10 MB at hub layer, 50 KB text at MCP tool layer (LLM token constraint)
 
 ### Pending Todos
 
@@ -63,9 +74,12 @@ None.
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| Security | Namespace isolation enforcement (any worker can read other swarm files) | Deferred | v1.2 |
+| Storage | TTL / automatic cleanup of in-memory files | Deferred | v1.2 |
+| Binary | Binary upload via two-step protocol | Deferred | v1.2 |
+| Storage | File overwrite history / versioning | Deferred | v1.2 |
 
 ## Session Continuity
 
-Last session: 2026-04-26T20:49:00.000Z
-Stopped at: Milestone v1.2 — defining requirements
+Last session: 2026-04-26T21:11:00.000Z
+Stopped at: Roadmap created — ready to plan Phase 6
