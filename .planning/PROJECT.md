@@ -41,6 +41,15 @@ Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazi
 - [x] **HUB-04**: Hub fix `DELETE /worker` (endpoint non funzionante) — Validated in Phase 04: hub-fixes
 - [x] **HUB-05**: Hub inietta prompt a Claude all'avvio per distribuire carico verso workers — Validated in Phase 04: hub-fixes
 
+### Validated (v1.2 — Phase 6)
+
+- [x] **FILE-01**: Hub espone `PUT /files/:swarmId/:filename` — UUID-keyed, risponde con `{id, filename, size, mimeType, uploadedAt}` — Validated in Phase 06: hub-file-routes
+- [x] **FILE-02**: Hub espone `GET /files/:swarmId/:filename` — paginazione `?offset=N&max_bytes=M` — Validated in Phase 06: hub-file-routes
+- [x] **FILE-03**: Hub espone `GET /files/:swarmId` — lista metadata senza content — Validated in Phase 06: hub-file-routes
+- [x] **FILE-04**: Hub espone `DELETE /files/:swarmId/:filename` — `{deleted: true}` — Validated in Phase 06: hub-file-routes
+- [x] **FILE-09**: filename trattato come metadata opaca, nessun path traversal possibile — Validated in Phase 06: hub-file-routes
+- [x] **FILE-10**: `readRawBody` separato da `readBody`, 10 MB default, HTTP 413 su overflow — Validated in Phase 06: hub-file-routes
+
 ### Out of Scope
 
 - TLS / HTTPS — documentato: usare reverse proxy per internet
@@ -86,4 +95,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-_Last updated: 2026-04-26 — Milestone v1.2 started: MCP File Transport_
+_Last updated: 2026-04-26 — Phase 6 Hub File Routes complete (1/3 phases v1.2)_
