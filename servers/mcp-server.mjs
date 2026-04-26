@@ -146,14 +146,18 @@ server.tool(
       body: JSON.stringify(body),
     });
 
+    // Capture hub-assigned ID if none was provided (WR-01)
+    const assignedId = resolvedId || data.worker?.id || "";
+
     // WORKER-04: avvia polling heartbeat dopo ogni registrazione riuscita.
     // callbackUrl e' sempre presente nell'architettura attuale (HTTP server
     // avviato prima del POST), quindi il polling parte sempre — non e' un fallback.
     pollInterval = setInterval(async () => {
+      if (!assignedId) return; // can't poll without an ID
       try {
-        const msgs = await hubFetch(`/messages/${resolvedId}?unread=true`);
+        const msgs = await hubFetch(`/messages/${assignedId}?unread=true`);
         if (msgs.messages && msgs.messages.length > 0) {
-          process.stdout.write(`[worker-poll] ${JSON.stringify(msgs.messages)}\n`);
+          process.stderr.write(`[worker-poll] ${JSON.stringify(msgs.messages)}\n`);
         }
       } catch {
         // D-11: silent skip on network error — retry at next interval
@@ -381,7 +385,7 @@ function workerRequestHandler(req, res) {
     req.on("data", (c) => chunks.push(c));
     req.on("end", () => {
       const body = Buffer.concat(chunks).toString();
-      process.stdout.write(`[worker-push] ${body}\n`);
+      process.stderr.write(`[worker-push] ${body}\n`);
       json(res, 200, { ok: true });
     });
     req.on("error", (err) => {
