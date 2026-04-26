@@ -1,39 +1,29 @@
 ---
 phase: 05-worker-lifecycle
-verified: 2026-04-26T09:06:00+02:00
-status: gaps_found
-score: 3/4 roadmap success criteria verified
+verified: 2026-04-26T09:38:00+02:00
+status: human_needed
+score: 4/4 roadmap success criteria verified
 overrides_applied: 0
-gaps:
-  - truth: "After a successful swarm_register call, mcp-server.mjs begins polling the hub every 10 seconds without any additional user action"
-    status: failed
-    reason: "The polling block at line 150 is guarded by `if (!callbackUrl)`. Because callbackUrl is always assigned a non-empty string at line 132 (`const callbackUrl = \`http://${WORKER_HOST}:${boundPort}\``), the condition is always false and setInterval never fires. The SUMMARY explicitly documents this: 'nella versione corrente del codice callbackUrl è sempre valorizzata... quindi il polling non si attiva mai in normale operazione.' WORKER-04 is structurally present but behaviourally dead."
-    artifacts:
-      - path: "servers/mcp-server.mjs"
-        issue: "Line 150: `if (!callbackUrl)` is always false because callbackUrl is set unconditionally at line 132. The setInterval block (lines 151-160) is unreachable dead code."
-    missing:
-      - "Change the polling condition from `if (!callbackUrl)` to `if (callbackUrl)` to activate automatic polling after every successful registration (aligns with WORKER-04 intent), OR invert the design decision to always poll and remove the callbackUrl guard entirely, OR update the roadmap SC to reflect the intentional design that polling is a fallback-only path"
-  - truth: "The polling loop runs in the background and does not block MCP tool execution"
-    status: failed
-    reason: "Depends on SC #2. Because the polling setInterval never starts, this criterion cannot be independently verified. The infrastructure (non-blocking setInterval pattern, async callback, silent error catch) is structurally correct — the only issue is the guard condition preventing it from ever being scheduled."
-    artifacts:
-      - path: "servers/mcp-server.mjs"
-        issue: "Dead code at lines 150-161. setInterval never scheduled."
-    missing:
-      - "Fix the guard condition (same fix as gap 1 above). Once polling activates, the non-blocking pattern is already correct."
-deferred: []
+re_verification:
+  previous_status: gaps_found
+  previous_score: 2/4
+  gaps_closed:
+    - "After a successful swarm_register call, mcp-server.mjs begins polling the hub every 10 seconds without any additional user action"
+    - "The polling loop runs in the background and does not block MCP tool execution"
+  gaps_remaining: []
+  regressions: []
 human_verification:
-  - test: "Orphan process test — verify no daemon survives Claude exit"
-    expected: "After running swarm_register and then closing the Claude Code session, the mcp-server.mjs process (and its worker HTTP server) should no longer appear in `ps aux`. No TCP port should remain bound."
-    why_human: "Cannot simulate Claude Code stdin-close programmatically in this context. Requires starting a real Claude Code session with the MCP server, then closing it, and checking process table."
+  - test: "Orphan process test — verifica che nessun daemon sopravviva all'uscita di Claude"
+    expected: "Dopo aver eseguito swarm_register e chiuso la sessione Claude Code, il processo mcp-server.mjs (e il suo worker HTTP server) non deve comparire in `ps aux`. Nessuna porta TCP deve restare aperta."
+    why_human: "Non è possibile simulare la chiusura dello stdin di Claude Code in modo programmatico. Richiede avviare una sessione reale con il MCP server, chiuderla, e verificare la tabella dei processi."
 ---
 
-# Phase 5: Worker Lifecycle Verification Report
+# Phase 5: Worker Lifecycle — Re-Verification Report
 
 **Phase Goal:** Workers are self-identifying (SWARM_ID), self-polling, and leave no orphaned processes when Claude exits
-**Verified:** 2026-04-26T09:06:00+02:00
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-04-26T09:38:00+02:00
+**Status:** human_needed
+**Re-verification:** Si — dopo chiusura gap (piano 05-03)
 
 ## Goal Achievement
 
@@ -41,108 +31,111 @@ human_verification:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | Running `/codestra-start-worker [hub-ip] [hub-port] [worker-port] [swarm-id]` passes SWARM_ID to mcp-server.mjs and hub registration payload includes that ID | VERIFIED | SKILL.md line 4: argument-hint includes `[swarm-id?]`; line 16: $3 param documented; line 47: swarm_register invocation instructs passing $3 as `swarmId`. mcp-server.mjs line 112: `swarmId` in schema; line 114: destructured in handler; line 141: `resolvedId = swarmId \|\| INSTANCE_ID`; line 142: `if (resolvedId) body.id = resolvedId` — ID flows into hub POST body. |
-| 2 | After a successful `swarm_register` call, mcp-server.mjs begins polling the hub every 10 seconds without any additional user action | FAILED | Lines 150-161 contain the setInterval polling block but it is guarded by `if (!callbackUrl)`. callbackUrl is set unconditionally at line 132 to `http://${WORKER_HOST}:${boundPort}` — a string that is always truthy after startWorkerServer resolves. The condition is always false; setInterval never fires. |
-| 3 | The polling loop runs in the background and does not block MCP tool execution | FAILED | Depends on SC #2. The loop never starts. The structural pattern (async setInterval, silent catch) is correct but unreachable. |
-| 4 | When the Claude Code instance exits, the MCP daemon process terminates automatically (no orphan process) | VERIFIED (code) / HUMAN NEEDED (runtime) | cleanup() at lines 421-424: `clearInterval(pollInterval)` + `if (httpServer) httpServer.close()`. process.stdin.on('close', cleanup) at line 426 wires exit detection. Node.js process exits naturally when stdin closes and no other async work holds the event loop. Runtime confirmation requires human test. |
+| 1 | Running `/codestra-start-worker [hub-ip] [hub-port] [worker-port] [swarm-id]` passa SWARM_ID a mcp-server.mjs e il payload di registrazione hub include quell'ID | VERIFIED | SKILL.md riga 4: argument-hint include `[swarm-id?]`; riga 16: parametro $3 documentato con fallback a `SWARM_ID` env; riga 47: istruzione operativa passa $3 come `swarmId`. mcp-server.mjs riga 112: `swarmId` nello schema Zod; riga 114: destructurato nell'handler; riga 141: `resolvedId = swarmId \|\| INSTANCE_ID`; riga 142: `if (resolvedId) body.id = resolvedId` — ID entra nel body del POST all'hub. |
+| 2 | Dopo una chiamata `swarm_register` riuscita, mcp-server.mjs avvia polling all'hub ogni 10 secondi senza azioni aggiuntive | VERIFIED | Piano 05-03 ha rimosso il guard `if (!callbackUrl)`. Riga 152: `pollInterval = setInterval(async () => {` eseguito incondizionatamente dopo `await hubFetch("/workers", ...)` a riga 144. Nessuna occorrenza di `if.*callbackUrl` nel file. Commento a riga 149-151 conferma intento: "WORKER-04 heartbeat dopo ogni registrazione riuscita". |
+| 3 | Il loop di polling gira in background senza bloccare l'esecuzione dei tool MCP | VERIFIED | `setInterval` con callback `async` a riga 152. Il loop non blocca l'event loop di Node.js; le chiamate `hubFetch` avvengono fuori dalla catena sincrona dei tool MCP. Errori catturati silenziosamente (riga 158-160) — nessun crash del server MCP. |
+| 4 | Quando l'istanza Claude Code che ha avviato mcp-server.mjs esce, il processo daemon MCP termina automaticamente (nessun processo orfano) | VERIFIED (codice) / HUMAN NEEDED (runtime) | `cleanup()` a righe 421-424: `clearInterval(pollInterval)` + `if (httpServer) httpServer.close()`. `process.stdin.on('close', cleanup)` a riga 426, registrato dopo `server.connect(transport)` a riga 418. Con il server HTTP chiuso e nessun setInterval attivo, l'event loop si svuota e Node.js esce naturalmente. Conferma runtime richiede test umano. |
 
-**Score:** 2/4 roadmap truths fully verified (SC #1 and SC #4 code-verified; SC #2 and SC #3 failed)
+**Score:** 4/4 — tutte le truth roadmap verificate a livello di codice
 
-### Plan 01 Must-Have Truths
+### Gap Closure
+
+| Gap precedente | Status nel precedente | Status attuale | Fix applicato |
+|---|---|---|---|
+| SC #2: polling mai avviato (`if (!callbackUrl)` sempre false) | FAILED | VERIFIED | Piano 05-03 (commit 2fe52d9): rimosso guard, `pollInterval = setInterval(...)` ora incondizionato |
+| SC #3: loop non verificabile (dipendente da SC #2) | FAILED | VERIFIED | Risolto transitivamente dalla chiusura del gap SC #2 |
+
+### Plan Must-Have Truths
+
+#### Piano 05-01
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | swarm_register accepts an optional swarmId parameter that overrides SWARM_ID env var in the hub POST body | VERIFIED | Lines 112, 114, 141-142 in mcp-server.mjs. resolvedId = swarmId \|\| INSTANCE_ID; body.id = resolvedId. |
-| 2 | After swarm_register completes (when no callback_url fallback path is active), a pollInterval setInterval is declared at module scope | FAILED | `let pollInterval` is declared at module scope (line 101). However the polling block condition `if (!callbackUrl)` at line 150 is always false because callbackUrl is always assigned. The setInterval is never called; pollInterval remains undefined. |
-| 3 | When the Claude Code stdio pipe closes, cleanup() fires: clearInterval(pollInterval) + httpServer.close() | VERIFIED | cleanup() defined lines 421-424; stdin close listener line 426. clearInterval(undefined) is safe no-op in Node.js. httpServer guarded with null check. |
-| 4 | The MCP daemon exits naturally after stdin closes — no orphan process remains | VERIFIED (code) | With httpServer.close() called and no active setInterval, the event loop drains and Node.js exits naturally. Human test needed for runtime confirmation. |
-| 5 | httpServer is captured from startWorkerServer result and available to cleanup | VERIFIED | Line 123: `httpServer = result.server;` — module-scope assignment inside try block. Available to cleanup() closure. |
+| 1 | swarm_register accetta parametro opzionale swarmId che fa override su SWARM_ID env nel body hub POST | VERIFIED | Riga 112: schema Zod `swarmId: z.string().optional()`; riga 141: `resolvedId = swarmId \|\| INSTANCE_ID`; riga 142: `body.id = resolvedId` |
+| 2 | Dopo swarm_register, pollInterval setInterval è dichiarato a scope di modulo e avviato | VERIFIED | `let pollInterval` riga 101 (scope modulo); `pollInterval = setInterval(...)` riga 152 — eseguito incondizionatamente dopo hub POST riuscito |
+| 3 | Quando la pipe stdio di Claude si chiude, cleanup() esegue clearInterval(pollInterval) + httpServer.close() | VERIFIED | cleanup() righe 421-424; listener riga 426. `clearInterval(undefined)` è no-op sicuro in Node.js |
+| 4 | Il daemon MCP esce naturalmente dopo chiusura stdin — nessun processo orfano | VERIFIED (codice) | httpServer.close() libera il server HTTP; clearInterval libera il timer; event loop si svuota |
+| 5 | httpServer catturato da startWorkerServer e disponibile a cleanup | VERIFIED | Riga 123: `httpServer = result.server;` — assegnazione a scope di modulo dentro il try block |
 
-### Plan 02 Must-Have Truths
+#### Piano 05-02
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | The skill signature documents [swarm-id?] as the fourth optional argument | VERIFIED | SKILL.md line 4: `argument-hint: [hub-ip] [hub-port] [worker-port?] [swarm-id?]` |
-| 2 | The skill parameter list includes a $3 entry describing swarmId | VERIFIED | SKILL.md line 16: `- Swarm ID (\`$3\`): opzionale — ID univoco...` |
-| 3 | The swarm_register invocation instructions tell Claude to pass $3 as swarmId when provided | VERIFIED | SKILL.md line 47: `- \`swarmId\`: se \`$3\` è fornito, passare il suo valore stringa; altrimenti omettere (il server usa l'env var)` |
+| 1 | La firma della skill documenta [swarm-id?] come quarto argomento opzionale | VERIFIED | SKILL.md riga 4: `argument-hint: [hub-ip] [hub-port] [worker-port?] [swarm-id?]` |
+| 2 | La lista parametri della skill include voce $3 che descrive swarmId | VERIFIED | SKILL.md riga 16: `- Swarm ID (\`$3\`): opzionale — ID univoco da assegnare a questo worker...` |
+| 3 | Le istruzioni di invocazione swarm_register dicono a Claude di passare $3 come swarmId quando fornito | VERIFIED | SKILL.md riga 47: `- \`swarmId\`: se \`$3\` è fornito, passare il suo valore stringa; altrimenti omettere` |
+
+#### Piano 05-03 (gap-closure)
+
+| # | Truth | Status | Evidence |
+|---|-------|--------|----------|
+| 1 | Dopo ogni swarm_register riuscito, il polling parte sempre — non condizionato a callbackUrl | VERIFIED | Nessuna occorrenza di `if.*callbackUrl` nel file; `pollInterval = setInterval(...)` a riga 152 in posizione incondizionata |
+| 2 | setInterval viene assegnato a pollInterval ogni volta che la registrazione all'hub ha successo | VERIFIED | Riga 152: assegnazione diretta dopo `await hubFetch("/workers", ...)` senza guard |
+| 3 | Il blocco di polling non è racchiuso in nessun guard if(!callbackUrl) né equivalente | VERIFIED | `grep -c "if (!callbackUrl)"` → 0 risultati |
+| 4 | Il commento descrive il polling come heartbeat permanente, non come fallback | VERIFIED | Righe 149-151: "WORKER-04: avvia polling heartbeat dopo ogni registrazione riuscita. [...] il polling parte sempre — non è un fallback." |
 
 ### Required Artifacts
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| `servers/mcp-server.mjs` | swarmId param, module-scope lifecycle state, polling fallback, stdin close handler | PARTIAL — STUB (polling dead code) | File exists, 427 lines, passes `node --check`. All insertions present syntactically. Polling block structurally dead — setInterval never fires in any normal code path. |
-| `skills/codestra-start-worker/SKILL.md` | Updated argument signature and swarmId invocation instructions | VERIFIED | File exists, 57 lines. All three required strings present: `swarm-id?` (1 occurrence), `swarmId` (2 occurrences), `$3` (2 occurrences). |
+| Artifact | Atteso | Status | Dettagli |
+|----------|--------|--------|---------|
+| `servers/mcp-server.mjs` | swarmId param, lifecycle state a scope modulo, polling incondizionato, stdin close handler | VERIFIED | 426 righe, `node --check` esce 0. swarmId: 3 occorrenze; resolvedId: 3 occorrenze; pollInterval = setInterval: 1 occorrenza; clearInterval: 1 occorrenza; process.stdin.on: 1 occorrenza. Nessun guard if(!callbackUrl). |
+| `skills/codestra-start-worker/SKILL.md` | Firma aggiornata e istruzioni invocazione swarmId | VERIFIED | 58 righe. argument-hint con [swarm-id?]; $3 documentato 2 volte; swarmId menzionato 2 volte. |
 
 ### Key Link Verification
 
-| From | To | Via | Status | Details |
-|------|-----|-----|--------|---------|
-| swarm_register handler | module-scope httpServer / pollInterval | assignment inside async handler | PARTIAL | `httpServer = result.server` at line 123 — WIRED. `pollInterval = setInterval(...)` inside `if (!callbackUrl)` at line 151 — NEVER ASSIGNED (dead code path). |
-| process.stdin.on | cleanup function | event listener registration after server.connect | VERIFIED | Line 426: `process.stdin.on('close', cleanup)` — registered after `server.connect(transport)` at line 418. Correct order. |
-| SKILL.md argument-hint | swarm_register swarmId param | $3 positional argument -> swarmId tool parameter | VERIFIED | SKILL.md line 4 documents [swarm-id?]; line 47 instructs passing $3 as swarmId string. mcp-server.mjs line 112 accepts it. Chain complete. |
+| From | To | Via | Status | Dettagli |
+|------|----|-----|--------|---------|
+| swarm_register handler | module-scope pollInterval | assegnazione diretta dopo hub POST | VERIFIED | Riga 152: `pollInterval = setInterval(...)` — incondizionato, immediatamente dopo `await hubFetch("/workers", ...)` |
+| swarm_register handler | module-scope httpServer | assegnazione in try block | VERIFIED | Riga 123: `httpServer = result.server;` — disponibile a cleanup() |
+| process.stdin.on('close') | cleanup() | event listener dopo server.connect | VERIFIED | Riga 426: listener registrato dopo `await server.connect(transport)` a riga 418 |
+| SKILL.md argument-hint | swarm_register swarmId param | argomento posizionale $3 → parametro tool | VERIFIED | SKILL.md riga 4 documenta [swarm-id?]; riga 47 istruisce passaggio come stringa; mcp-server.mjs riga 112 accetta il param |
 
 ### Data-Flow Trace (Level 4)
 
-Not applicable — modified files are an MCP server (stdin/stdout transport) and a skill instruction document. No React/component rendering chain to trace.
+Non applicabile — i file modificati sono un server MCP (trasporto stdio) e un documento di istruzioni skill. Non esiste catena di rendering React/componenti da tracciare.
 
 ### Behavioral Spot-Checks
 
-| Behavior | Command | Result | Status |
-|----------|---------|--------|--------|
-| mcp-server.mjs valid ES module syntax | `node --check servers/mcp-server.mjs` | Exit 0, no output | PASS |
-| swarmId present in schema (3+ occurrences) | `grep -c "swarmId" servers/mcp-server.mjs` | 3 | PASS |
-| Module-scope let httpServer declared | `grep -n "let httpServer" servers/mcp-server.mjs` | Line 100 | PASS |
-| Module-scope let pollInterval declared | `grep -n "let pollInterval" servers/mcp-server.mjs` | Line 101 | PASS |
-| httpServer captured inside handler | `grep -n "httpServer = result.server" servers/mcp-server.mjs` | Line 123 | PASS |
-| stdin close listener registered | `grep -n "process.stdin.on" servers/mcp-server.mjs` | Line 426 | PASS |
-| Polling condition evaluation | `node -e "const c='http://localhost:1'; console.log(!c)"` | false | FAIL — setInterval block is dead code; condition `!callbackUrl` is always false |
-| SKILL.md argument-hint updated | `grep "argument-hint" skills/codestra-start-worker/SKILL.md` | `[hub-ip] [hub-port] [worker-port?] [swarm-id?]` | PASS |
+| Comportamento | Comando | Risultato | Status |
+|---------------|---------|-----------|--------|
+| Sintassi ES module valida | `node --check servers/mcp-server.mjs` | Exit 0, nessun output | PASS |
+| swarmId nel schema (3+ occorrenze) | `grep -c "swarmId" servers/mcp-server.mjs` | 3 | PASS |
+| pollInterval = setInterval incondizionato | `grep -n "pollInterval = setInterval" servers/mcp-server.mjs` | Riga 152 | PASS |
+| Guard if(!callbackUrl) rimosso | `grep -c "if (!callbackUrl)" servers/mcp-server.mjs` | 0 | PASS |
+| let httpServer a scope modulo | `grep -n "^let httpServer" servers/mcp-server.mjs` | Riga 100 | PASS |
+| let pollInterval a scope modulo | `grep -n "^let pollInterval" servers/mcp-server.mjs` | Riga 101 | PASS |
+| httpServer catturato nell'handler | `grep -n "httpServer = result.server" servers/mcp-server.mjs` | Riga 123 | PASS |
+| stdin close listener registrato | `grep -n "process.stdin.on" servers/mcp-server.mjs` | Riga 426 | PASS |
+| SKILL.md argument-hint aggiornato | `grep "argument-hint" skills/codestra-start-worker/SKILL.md` | `[hub-ip] [hub-port] [worker-port?] [swarm-id?]` | PASS |
+| commit 05-03 esiste nel repo | `git show --oneline 2fe52d9` | `fix(05-03): remove dead if(!callbackUrl) guard — WORKER-04 polling now unconditional` | PASS |
 
 ### Requirements Coverage
 
-| Requirement | Source Plan | Description | Status | Evidence |
-|-------------|-------------|-------------|--------|----------|
-| WORKER-03 | 05-01, 05-02 | Worker accepts SWARM_ID parameter at startup | SATISFIED | swarmId param in mcp-server.mjs schema + handler; SKILL.md $3 argument documented and wired to swarm_register invocation |
-| WORKER-04 | 05-01 | Worker starts automatic polling every 10s after registration | BLOCKED | setInterval block present but guarded by `if (!callbackUrl)` which is always false. Polling never starts in any normal execution path. |
-| WORKER-05 | 05-01 | Exiting Claude kills the MCP daemon process | SATISFIED (code) | cleanup() + process.stdin.on('close') implemented and wired. Runtime test needed for full confirmation. |
+| Requisito | Piano | Descrizione | Status | Evidence |
+|-----------|-------|-------------|--------|---------|
+| WORKER-03 | 05-01, 05-02 | Worker accetta parametro SWARM_ID all'avvio | SATISFIED | swarmId nel schema e handler mcp-server.mjs; SKILL.md $3 documentato e collegato a swarm_register |
+| WORKER-04 | 05-01, 05-03 | Worker avvia polling automatico ogni 10s dopo registrazione | SATISFIED | setInterval a riga 152 eseguito incondizionatamente dopo hub POST riuscito; guard rimosso da piano 05-03 |
+| WORKER-05 | 05-01 | Uscita da Claude killa automaticamente il processo daemon MCP | SATISFIED (codice) / HUMAN NEEDED (runtime) | cleanup() + process.stdin.on('close') implementati e collegati; test runtime richiede verifica umana |
 
-**Orphaned requirements from REQUIREMENTS.md mapped to Phase 5:** None. WORKER-03, WORKER-04, WORKER-05 are all claimed by plans 05-01 and 05-02.
+**Nota REQUIREMENTS.md:** Le checkbox e la colonna Status nella tabella di traceability in `.planning/REQUIREMENTS.md` mostrano ancora "Pending" per WORKER-03/04/05. Il file non e' stato aggiornato dal codice eseguito in questa fase. Questo e' un problema di documentazione, non di implementazione — l'implementazione e' verificata come completa.
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
-|------|------|---------|----------|--------|
-| `servers/mcp-server.mjs` | 150 | `if (!callbackUrl)` — always-false guard on setInterval | Blocker | WORKER-04 polling never starts. callbackUrl is assigned unconditionally at line 132 before this check. pollInterval remains undefined; `clearInterval(undefined)` in cleanup is a no-op (correct) but polling was the intended behavior. |
+Nessun anti-pattern bloccante rilevato nel codebase corrente.
+
+| File | Riga | Pattern | Severita | Impatto |
+|------|------|---------|----------|---------|
+| `servers/mcp-server.mjs` | 152 | `pollInterval = setInterval(...)` mai cancellato se swarm_register viene chiamato due volte | Warning | Leak minore: chiamate multiple a swarm_register sovrascriverebbero pollInterval senza fare clearInterval sul precedente. Non bloccante per il goal della fase. |
 
 ### Human Verification Required
 
 #### 1. Orphan Process Test
 
-**Test:** Start a Claude Code session with `codestra` MCP server configured. Call `swarm_register`. Note the PID of the mcp-server.mjs process (`ps aux | grep mcp-server`). Then close the Claude Code window (or `exit` from the terminal session).
-
-**Expected:** Within 1-2 seconds, the mcp-server.mjs process should no longer appear in `ps aux`. No port should remain bound (`ss -tlnp | grep <worker-port>`).
-
-**Why human:** Cannot simulate Claude Code stdio pipe close programmatically in this verification context. This is the core WORKER-05 runtime guarantee.
+**Test:** Avviare Claude Code con il MCP server configurato, eseguire `swarm_register` (con un hub attivo o ignorando l'errore), poi chiudere la sessione Claude Code. Verificare con `ps aux | grep mcp-server` e `ss -tlnp` che il processo e le porte siano stati liberati.
+**Expected:** Dopo la chiusura di Claude Code, nessun processo `mcp-server.mjs` appare in `ps aux`. Nessuna porta TCP (quella del worker HTTP server) rimane in ascolto.
+**Why human:** Non e' possibile simulare la chiusura dello stdin di Claude Code in modo programmatico in questo contesto. Richiede una sessione reale Claude Code con il MCP server attivo.
 
 ---
 
-## Gaps Summary
-
-**1 root-cause gap blocking 2 success criteria (SC #2 and SC #3 / WORKER-04):**
-
-The polling fallback block in `swarm_register` was implemented with an inverted condition. The intent (per CONTEXT.md D-04 and PLAN 01 task description) is to start polling only when the worker lacks a callback_url. However, in the current implementation, `callbackUrl` is **always** set unconditionally at line 132 — it is constructed from the worker's HTTP server port which is always assigned by `startWorkerServer`. The guard `if (!callbackUrl)` is therefore always false, and `setInterval` is never scheduled.
-
-The SUMMARY documents this as a known limitation: "Il blocco di polling è condizionale su `!callbackUrl`: nella versione corrente del codice `callbackUrl` è sempre valorizzata... quindi il polling non si attiva mai in normale operazione — è predisposto come fallback strutturale per refactoring futuri."
-
-This is acknowledged dead code that was accepted as "structural preparation for future refactoring" — but this directly contradicts WORKER-04's requirement ("Worker avvia polling automatico ogni 10s verso l'hub subito dopo la registrazione") and Roadmap SC #2 ("begins polling the hub every 10 seconds without any additional user action").
-
-**Resolution options:**
-1. Change `if (!callbackUrl)` to `if (callbackUrl)` or remove the guard entirely to always poll after registration. This satisfies WORKER-04 and SC #2 at the cost of slightly increased hub traffic (10s heartbeats from all workers).
-2. Accept the current behavior as intentional and update WORKER-04 / SC #2 in REQUIREMENTS.md and ROADMAP.md to reflect that polling is only a fallback path (never active when push delivery is configured). If accepted, add an `overrides:` entry to this file.
-
-**All other must-haves pass.** WORKER-03 (swarmId identification chain), WORKER-05 (clean shutdown via stdin close), and the SKILL.md documentation updates are fully implemented and wired correctly.
-
----
-
-_Verified: 2026-04-26T09:06:00+02:00_
-_Verifier: Claude (gsd-verifier)_
+_Verificato: 2026-04-26T09:38:00+02:00_
+_Verifier: Claude (gsd-verifier) — Re-verification dopo gap-closure piano 05-03_
