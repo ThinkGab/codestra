@@ -96,6 +96,10 @@ server.tool(
   }
 );
 
+// ── Module-level lifecycle state ─────────────────────────────────────────────
+let httpServer;      // set by swarm_register handler
+let pollInterval;    // set by swarm_register handler (polling fallback only)
+
 // ── Tool: register_self ─────────────────────────────────────────────────────
 
 server.tool(
@@ -105,8 +109,9 @@ server.tool(
     role: z.enum(["leader", "worker"]).optional().describe("Role of this instance (default from env)"),
     task: z.string().optional().describe("Brief description of what this instance is working on"),
     workerPort: z.number().optional().describe("Port for the worker HTTP server (default: OS-assigned)"),
+    swarmId: z.string().optional().describe("Swarm ID for this instance (overrides SWARM_ID env var)"),
   },
-  async ({ role, task, workerPort }) => {
+  async ({ role, task, workerPort, swarmId }) => {
     // 1. Avvia server HTTP worker — DEVE essere up prima del POST all'hub (D-01, D-02)
     //    Evita race condition: se l'hub tentasse push immediatamente dopo registrazione,
     //    il server deve già essere in ascolto.
@@ -114,7 +119,8 @@ server.tool(
     let boundPort;
     try {
       const result = await startWorkerServer(portArg);
-      boundPort = result.port;
+      boundPort  = result.port;
+      httpServer = result.server;   // module-scope — used by cleanup()
     } catch (err) {
       return {
         content: [{ type: "text", text: err.message }],
@@ -132,12 +138,28 @@ server.tool(
       cwd: process.cwd(),
       callback_url: callbackUrl,
     };
-    if (INSTANCE_ID) body.id = INSTANCE_ID;
+    const resolvedId = swarmId || INSTANCE_ID;   // param wins over env (D-02)
+    if (resolvedId) body.id = resolvedId;
 
     const data = await hubFetch("/workers", {
       method: "POST",
       body: JSON.stringify(body),
     });
+
+    // D-04: only start polling if no callback_url was registered (fallback path)
+    if (!callbackUrl) {
+      pollInterval = setInterval(async () => {
+        try {
+          const msgs = await hubFetch(`/messages/${resolvedId}?unread=true`);
+          if (msgs.messages && msgs.messages.length > 0) {
+            process.stdout.write(`[worker-poll] ${JSON.stringify(msgs.messages)}\n`);
+          }
+        } catch {
+          // D-11: silent skip on network error — retry at next interval
+        }
+      }, 10_000); // D-05: 10 second interval
+    }
+
     return {
       content: [
         {
@@ -394,3 +416,11 @@ function startWorkerServer(port = 0) {
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
+
+// ── Shutdown detection (D-08, D-09) ─────────────────────────────────────────
+function cleanup() {
+  clearInterval(pollInterval);   // no-op if undefined (safe in Node.js)
+  if (httpServer) httpServer.close();
+}
+
+process.stdin.on('close', cleanup);
