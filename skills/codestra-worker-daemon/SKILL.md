@@ -35,7 +35,7 @@ In attesa di task...
 
 ## Fase 2 — Polling loop
 
-Ripeti ogni `$1` secondi (default 30) usando il tool `swarm_get_messages` o, se non disponibile, via Bash:
+Ripeti ogni `$1` secondi (default 30) usando il tool `swarm_read_messages` o, se non disponibile, via Bash:
 
 ```bash
 curl -s \

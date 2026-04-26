@@ -27,6 +27,6 @@ curl -s -X DELETE \
 
 ## Output all'utente
 
-- Se `deleted: true`: "Worker `<id>` rimosso con successo."
-- Se `deleted: false`: "Worker `<id>` non era presente nell'hub."
+- Se risposta contiene `ok: true`: "Worker `<id>` rimosso con successo."
+- Se risposta 404 / `error`: "Worker `<id>` non era presente nell'hub."
 - Se errore di rete: mostra l'errore raw e suggerisci di verificare `SWARM_HUB_URL`.
