@@ -39,8 +39,8 @@ Plans:
   4. When the Claude Code instance that started `mcp-server.mjs` exits, the MCP daemon process terminates automatically (no orphan process left behind)
 **Plans**: 2 plans
 Plans:
-- [ ] 05-01-PLAN.md — Add swarmId param, conditional polling, and stdin-close cleanup to mcp-server.mjs (WORKER-03, WORKER-04, WORKER-05)
-- [ ] 05-02-PLAN.md — Update codestra-start-worker SKILL.md signature and invocation instructions (WORKER-03)
+- [x] 05-01-PLAN.md — Add swarmId param, conditional polling, and stdin-close cleanup to mcp-server.mjs (WORKER-03, WORKER-04, WORKER-05) (2026-04-26)
+- [x] 05-02-PLAN.md — Update codestra-start-worker SKILL.md signature and invocation instructions (WORKER-03) (2026-04-26)
 
 ## Progress
 
@@ -50,4 +50,4 @@ Phases execute in numeric order: 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 4. Hub Fixes | 1/1 | Complete | 2026-04-25 |
-| 5. Worker Lifecycle | 0/2 | Not started | - |
+| 5. Worker Lifecycle | 2/2 | Complete | 2026-04-26 |
