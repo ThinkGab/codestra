@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0-f5a623?style=flat-square" alt="Version"/>
+  <img src="https://img.shields.io/badge/version-0.2.0-f5a623?style=flat-square" alt="Version"/>
   <img src="https://img.shields.io/badge/protocol-MCP-00d2ff?style=flat-square" alt="MCP"/>
   <img src="https://img.shields.io/badge/scope-LAN_ready-7b2ff7?style=flat-square" alt="LAN"/>
   <img src="https://img.shields.io/badge/license-MIT-4ade80?style=flat-square" alt="License"/>
@@ -47,6 +47,12 @@ You have one Claude Code instance. It's powerful, but some tasks are too big —
 🔐 **Simple Auth** — Optional `SWARM_SECRET` token for secured environments
 
 ⚡ **Auto-Registration** — Workers register themselves with the hub automatically on session start via hooks
+
+🆔 **SWARM_ID** — Assign fixed identities to workers with `SWARM_ID` env var or `swarmId` param — survives restarts and enables stable message routing
+
+💓 **Auto-Polling Heartbeat** — After `swarm_register`, the worker polls the hub every 10s automatically — no manual setup needed
+
+🛑 **Clean Shutdown** — When Claude exits, the MCP daemon terminates cleanly — no orphan processes left behind
 
 ## 🚀 Quick Start
 
@@ -84,6 +90,16 @@ Then just ask Claude to orchestrate:
 > *"Review all TypeScript files in src/ for security issues — use 3 parallel workers"*
 
 Il Maestro will take it from there. 🎼
+
+### 5. Start Workers with Fixed IDs (optional)
+
+Use the `/codestra-start-worker` skill to launch workers with stable identities:
+
+```
+/codestra-start-worker localhost 7800 [worker-port] my-worker-01
+```
+
+The `SWARM_ID` (`my-worker-01`) is passed to the MCP server so the hub can route messages to it reliably. After calling `swarm_register`, the worker polls the hub automatically every 10 seconds.
 
 ## 🏗 Architecture
 
@@ -188,26 +204,27 @@ claude  # auto-registers via SessionStart hook
 | `SWARM_HOST` | `0.0.0.0` | Hub bind address |
 | `SWARM_SECRET` | *(empty)* | Shared auth token |
 | `SWARM_ROLE` | `worker` | Instance role: `leader` or `worker` |
-| `SWARM_ID` | *(auto-generated)* | Fixed ID for this instance |
+| `SWARM_ID` | *(auto-generated)* | Fixed ID for this instance — stable across restarts, enables reliable message routing |
 
 ## 📦 Plugin Contents
 
 ```
 codestra/
 ├── .claude-plugin/
-│   └── plugin.json          # Plugin manifest
+│   └── marketplace.json     # Plugin manifest
 ├── skills/
-│   ├── orchestrate/         # Spawn & manage workers
-│   │   ├── SKILL.md
-│   │   └── references/
-│   │       └── patterns.md  # Advanced orchestration patterns
-│   └── messaging/           # Inter-instance communication
-│       └── SKILL.md
-├── hooks/
-│   └── hooks.json           # Auto-register on SessionStart
+│   ├── codestra-start-hub/       # Start the hub server
+│   ├── codestra-start-worker/    # Start a worker (supports SWARM_ID)
+│   ├── codestra-workers/         # List registered workers
+│   ├── codestra-messages/        # Read messages from hub
+│   ├── codestra-broadcast/       # Broadcast to all workers
+│   ├── codestra-worker-update/   # Update worker status
+│   ├── codestra-worker-remove/   # Unregister a worker
+│   ├── codestra-worker-daemon/   # Run worker in daemon mode
+│   └── codestra-gsd-parallel/    # Parallel GSD task dispatch
 ├── servers/
 │   ├── hub.mjs              # HTTP hub server
-│   ├── mcp-server.mjs       # MCP stdio bridge
+│   ├── mcp-server.mjs       # MCP stdio bridge (auto-polls, clean shutdown)
 │   └── package.json
 ├── .mcp.json                # MCP server config
 └── README.md
