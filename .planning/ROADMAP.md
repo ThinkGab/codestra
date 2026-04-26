@@ -26,7 +26,9 @@ Milestone v1.2 adds file transfer capability to the Codestra swarm. The hub gain
   3. `curl http://hub/files/:swarmId` returns an array of file metadata objects; uploading two files produces a two-element array
   4. `curl -X DELETE http://hub/files/:swarmId/report.txt` returns `{deleted: true}` and a subsequent GET for that filename returns 404
   5. Uploading a body exceeding 10 MB returns HTTP 413; a client-supplied filename containing `../` is stored as opaque metadata and never interpreted as a filesystem path
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 06-01-PLAN.md — files Map + readRawBody helper + four HTTP file routes (PUT, GET single, GET list, DELETE)
 
 ### Phase 7: MCP Tool Wrappers
 **Goal**: Claude workers can upload, download, list, and delete files in their swarm namespace through four MCP tools
