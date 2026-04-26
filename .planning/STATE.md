@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: MCP File Transport
-status: ready_to_execute
-stopped_at: Phase 6 planned — 1 plan ready for execution
-last_updated: "2026-04-26T21:39:00.000Z"
-last_activity: 2026-04-26 — Phase 6 Hub File Routes planned (1 plan, verified)
+status: phase_complete
+stopped_at: Phase 6 complete — 1/1 plans done, advancing to Phase 7
+last_updated: "2026-04-26T19:51:00.000Z"
+last_activity: 2026-04-26 — Phase 6 Hub File Routes executed (1/1 plans complete)
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 1
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 33
 ---
 
 # STATE.md
@@ -25,26 +25,30 @@ See: .planning/PROJECT.md (updated 2026-04-26)
 
 ## Current Position
 
-Phase: 6 — Hub File Routes
-Plan: 06-01 (1 plan)
-Status: Ready to execute
-Last activity: 2026-04-26 — Phase 6 planned, verified
+Phase: 6 — Hub File Routes (COMPLETE)
+Next: Phase 7 — MCP Tool Wrappers
+Plan: 06-01 (1/1 complete)
+Status: Phase 6 complete, ready for Phase 7
 
 ```
 [Phase 6] [ ] [ ]
  ^^^^^^^^
- Current
+ DONE
 ```
 
-Progress: 0/3 phases complete (0%)
+Progress: 1/3 phases complete (33%)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6 (v1.0) + 5 (v1.1) = 11 total
-- Average duration: —
-- Total execution time: —
+- Total plans completed: 6 (v1.0) + 5 (v1.1) + 1 (v1.2) = 12 total
+- Average duration: ~8 min (06-01)
+- Total execution time: ~8 min (v1.2 so far)
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| 06-01 | ~8 min | 2 (TDD: RED+GREEN each) | 1 modified, 2 created |
 
 *Updated after each plan completion*
 
@@ -61,6 +65,7 @@ Progress: 0/3 phases complete (0%)
 - Files keyed by UUID in hub Map; client filename is metadata only — no filesystem exposure
 - file_download pagination schema must be included from day one (breaking change if retrofitted)
 - Upload limit: 10 MB at hub layer, 50 KB text at MCP tool layer (LLM token constraint)
+- readRawBody uses rejected flag + req.resume() drain (not req.destroy()) so PUT handler can write 413 before socket closes
 
 ### Pending Todos
 

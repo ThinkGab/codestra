@@ -4,12 +4,12 @@
 
 ### Hub File Routes
 
-- [ ] **FILE-01**: Hub espone `PUT /files/:swarmId/:filename` — salva file in memoria con UUID key, filename come metadata, risponde con `{id, filename, size, mimeType, uploadedAt}`
-- [ ] **FILE-02**: Hub espone `GET /files/:swarmId/:filename` — supporta paginazione via `?offset=N&max_bytes=M`; risponde con `{content, offset, total_size, has_more}`
-- [ ] **FILE-03**: Hub espone `GET /files/:swarmId` — lista tutti i file del swarm con `[{id, filename, size, mimeType, uploadedAt}]`
-- [ ] **FILE-04**: Hub espone `DELETE /files/:swarmId/:filename` — rimuove file per filename nel namespace swarm; risponde con `{deleted: true}`
-- [ ] **FILE-09**: Hub usa `crypto.randomUUID()` come Map key; filename client è solo metadata — nessun path traversal possibile
-- [ ] **FILE-10**: Hub ha helper `readRawBody(req, limit)` separato da `readBody` per route upload (default 10 MB); risponde HTTP 413 su overflow
+- [x] **FILE-01**: Hub espone `PUT /files/:swarmId/:filename` — salva file in memoria con UUID key, filename come metadata, risponde con `{id, filename, size, mimeType, uploadedAt}`
+- [x] **FILE-02**: Hub espone `GET /files/:swarmId/:filename` — supporta paginazione via `?offset=N&max_bytes=M`; risponde con `{content, offset, total_size, has_more}`
+- [x] **FILE-03**: Hub espone `GET /files/:swarmId` — lista tutti i file del swarm con `[{id, filename, size, mimeType, uploadedAt}]`
+- [x] **FILE-04**: Hub espone `DELETE /files/:swarmId/:filename` — rimuove file per filename nel namespace swarm; risponde con `{deleted: true}`
+- [x] **FILE-09**: Hub usa `crypto.randomUUID()` come Map key; filename client è solo metadata — nessun path traversal possibile
+- [x] **FILE-10**: Hub ha helper `readRawBody(req, limit)` separato da `readBody` per route upload (default 10 MB); risponde HTTP 413 su overflow
 
 ### MCP Tools
 
@@ -41,12 +41,12 @@
 
 | REQ-ID | Phase | Plan | Status |
 |--------|-------|------|--------|
-| FILE-01 | Phase 6 | — | Pending |
-| FILE-02 | Phase 6 | — | Pending |
-| FILE-03 | Phase 6 | — | Pending |
-| FILE-04 | Phase 6 | — | Pending |
-| FILE-09 | Phase 6 | — | Pending |
-| FILE-10 | Phase 6 | — | Pending |
+| FILE-01 | Phase 6 | 06-01 | Complete |
+| FILE-02 | Phase 6 | 06-01 | Complete |
+| FILE-03 | Phase 6 | 06-01 | Complete |
+| FILE-04 | Phase 6 | 06-01 | Complete |
+| FILE-09 | Phase 6 | 06-01 | Complete |
+| FILE-10 | Phase 6 | 06-01 | Complete |
 | FILE-05 | Phase 7 | — | Pending |
 | FILE-06 | Phase 7 | — | Pending |
 | FILE-07 | Phase 7 | — | Pending |

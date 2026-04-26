@@ -10,7 +10,7 @@ Milestone v1.2 adds file transfer capability to the Codestra swarm. The hub gain
 - Integer phases (6, 7, 8): v1.2 planned milestone work (continuing from v1.1 which ended at Phase 5)
 - Decimal phases: Urgent insertions if needed mid-milestone
 
-- [ ] **Phase 6: Hub File Routes** - Add readRawBody helper and four HTTP file routes to hub.mjs; UUID-keyed in-memory store; curl-testable in isolation
+- [x] **Phase 6: Hub File Routes** - Add readRawBody helper and four HTTP file routes to hub.mjs; UUID-keyed in-memory store; curl-testable in isolation
 - [ ] **Phase 7: MCP Tool Wrappers** - Add file_upload, file_download, file_list, file_delete tools to mcp-server.mjs using hubFetch(); pagination schema included from day one
 - [ ] **Phase 8: Skills + Integration** - Create skills/file-transport/SKILL.md; validate end-to-end two-worker file handoff
 
@@ -28,7 +28,7 @@ Milestone v1.2 adds file transfer capability to the Codestra swarm. The hub gain
   5. Uploading a body exceeding 10 MB returns HTTP 413; a client-supplied filename containing `../` is stored as opaque metadata and never interpreted as a filesystem path
 **Plans**: 1 plan
 Plans:
-- [ ] 06-01-PLAN.md — files Map + readRawBody helper + four HTTP file routes (PUT, GET single, GET list, DELETE)
+- [x] 06-01-PLAN.md — files Map + readRawBody helper + four HTTP file routes (PUT, GET single, GET list, DELETE)
 
 ### Phase 7: MCP Tool Wrappers
 **Goal**: Claude workers can upload, download, list, and delete files in their swarm namespace through four MCP tools
@@ -58,6 +58,6 @@ Phases execute in numeric order: 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 6. Hub File Routes | 0/? | Not started | - |
+| 6. Hub File Routes | 1/1 | Complete | 2026-04-26 |
 | 7. MCP Tool Wrappers | 0/? | Not started | - |
 | 8. Skills + Integration | 0/? | Not started | - |
