@@ -1,44 +1,40 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: milestone
-status: complete
-stopped_at: Phase 5 complete — Milestone v1.1 done
-last_updated: "2026-04-26T09:18:00.000Z"
-last_activity: 2026-04-26 — Phase 5 verified and complete (WORKER-03/04/05 all satisfied)
+milestone: v1.2
+milestone_name: MCP File Transport
+status: defining_requirements
+stopped_at: Milestone v1.2 started — defining requirements
+last_updated: "2026-04-26T20:49:00.000Z"
+last_activity: 2026-04-26 — Milestone v1.2 started
 progress:
-  total_phases: 2
-  completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # STATE.md
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-25)
+See: .planning/PROJECT.md (updated 2026-04-26)
 
 **Core value:** Claude Code plugin enabling multiple Claude instances to coordinate as a swarm via a central hub
-**Current focus:** Milestone v1.1 — Worker Lifecycle & Hub Improvements
+**Current focus:** Milestone v1.2 — MCP File Transport
 
 ## Current Position
 
-Phase: Milestone v1.1 Complete
-Plan: All plans complete (04-01, 05-01, 05-02, 05-03 gap-closure)
-Status: Milestone v1.1 done — all 5 requirements satisfied (HUB-04, HUB-05, WORKER-03, WORKER-04, WORKER-05)
-Last activity: 2026-04-26 — Phase 5 verified complete; 1 human UAT item pending (WORKER-05 orphan process runtime test)
-
-```
-Progress: [█████-----] 50% (1/2 phases)
-```
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-26 — Milestone v1.2 started
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6 (v1.0)
+- Total plans completed: 6 (v1.0) + 5 (v1.1) = 11 total
 - Average duration: —
 - Total execution time: —
 
@@ -52,7 +48,8 @@ Progress: [█████-----] 50% (1/2 phases)
 - `${CLAUDE_PLUGIN_ROOT}` expanded by Claude Code to plugin install path
 - No TypeScript, no framework — Node.js ESM only throughout
 - Extend existing `hub.mjs` (plain node:http) and `mcp-server.mjs` (@modelcontextprotocol/sdk), do not replace
-- v1.1 phase numbering starts at 4 (v1.0 ended at Phase 3)
+- v1.2 phase numbering starts at 6 (v1.1 ended at Phase 5)
+- File storage in-memory (coerente con filosofia v1.x — no persistenza)
 
 ### Pending Todos
 
@@ -70,6 +67,5 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-25T21:19:15.608Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-hub-fixes/04-CONTEXT.md
+Last session: 2026-04-26T20:49:00.000Z
+Stopped at: Milestone v1.2 — defining requirements

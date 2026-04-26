@@ -8,16 +8,15 @@ Codestra è un plugin per Claude Code che permette di coordinare più istanze Cl
 
 Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazione manuale — basta installare il plugin e lanciare il comando giusto.
 
-## Current Milestone: v1.1 — Worker Lifecycle & Hub Improvements
+## Current Milestone: v1.2 — MCP File Transport
 
-**Goal:** Completare il ciclo di vita del worker (SWARM_ID, polling automatico, shutdown pulito) e fixare comportamenti Hub difettosi.
+**Goal:** Hub diventa canale MCP per trasferire file/artefatti tra workers, sostituendo la condivisione via filesystem locale.
 
 **Target features:**
-- Worker accetta parametro `SWARM_ID` all'avvio (identificatore esplicito dello swarm)
-- Worker avvia polling automatico ogni 10s dopo la registrazione all'hub
-- Uscita da Claude → kill automatico del demone MCP del worker
-- Hub: fix `DELETE /worker` (endpoint non funzionante)
-- Hub: all'avvio inietta prompt Claude per distribuire carico verso workers (non orchestrare da solo se non specificato)
+- Hub espone MCP tools: `file_upload`, `file_download`, `file_list`, `file_delete`
+- Worker usa MCP tools per scrivere/leggere artefatti (no disco locale condiviso)
+- File namespace per `swarm_id` (isolamento tra swarm diversi)
+- Hub gestisce storage in-memory (coerente con filosofia v1.x)
 
 ## Requirements
 
@@ -87,4 +86,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-_Last updated: 2026-04-26 — Milestone v1.1 complete: all worker lifecycle & hub improvements validated_
+_Last updated: 2026-04-26 — Milestone v1.2 started: MCP File Transport_

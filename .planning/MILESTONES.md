@@ -2,9 +2,17 @@
 
 ## Active
 
-### v1.1 — Worker Lifecycle & Hub Improvements
+### v1.2 — MCP File Transport
 **Status:** In progress
+**Started:** 2026-04-26
+**Goal:** Hub diventa canale MCP per trasferire file/artefatti tra workers, sostituendo la condivisione via filesystem locale.
+
+## Completed (recent)
+
+### v1.1 — Worker Lifecycle & Hub Improvements
+**Status:** Complete
 **Started:** 2026-04-25
+**Completed:** 2026-04-26
 **Goal:** Completare ciclo di vita worker (SWARM_ID, polling automatico, shutdown pulito) e fixare Hub (delete worker, load distribution prompt).
 
 ## Completed
