@@ -99,6 +99,7 @@ server.tool(
 // ── Module-level lifecycle state ─────────────────────────────────────────────
 let httpServer;      // set by swarm_register handler
 let pollInterval;    // set by swarm_register handler (WORKER-04 heartbeat)
+let registeredWorkerId; // set by swarm_register handler (Phase 7: file tools — D-01)
 
 // ── Tool: register_self ─────────────────────────────────────────────────────
 
@@ -159,6 +160,7 @@ server.tool(
 
     // Capture hub-assigned ID if none was provided (WR-01)
     const assignedId = resolvedId || data.worker?.id || "";
+    registeredWorkerId = assignedId; // Phase 7: expose to file tool handlers (D-01)
 
     // WORKER-04: avvia polling heartbeat dopo ogni registrazione riuscita.
     // callbackUrl e' sempre presente nell'architettura attuale (HTTP server
@@ -377,6 +379,124 @@ server.tool(
       return {
         content: [{ type: "text", text: data.ok ? `Worker ${workerId} removed.` : `Worker ${workerId} not found.` }],
       };
+    } catch (err) {
+      return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
+    }
+  }
+);
+
+// ── Tool: file_upload ───────────────────────────────────────────────────────
+
+server.tool(
+  "file_upload",
+  "Upload a text file to this worker's swarm namespace. Content must be a UTF-8 string of at most ~50 KB (MCP token-arg limit). Returns the hub metadata {id, filename, size, mimeType, uploadedAt}.",
+  {
+    filename: z.string().describe("Name to store the file under (treated as opaque metadata; not a filesystem path)"),
+    content:  z.string().describe("File content as a UTF-8 string (max ~50 KB)"),
+    mimeType: z.string().optional().describe("MIME type (default: text/plain)"),
+  },
+  async ({ filename, content, mimeType }) => {
+    if (!registeredWorkerId) {
+      return {
+        content: [{ type: "text", text: "Not registered: call swarm_register first." }],
+        isError: true,
+      };
+    }
+    try {
+      const data = await hubFetch(`/files/${registeredWorkerId}/${filename}`, {
+        method: "PUT",
+        body: content,
+        headers: { "Content-Type": mimeType || "text/plain" },
+      });
+      if (data.error) {
+        return { content: [{ type: "text", text: `Hub error: ${data.error}` }], isError: true };
+      }
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    } catch (err) {
+      return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
+    }
+  }
+);
+
+// ── Tool: file_download ─────────────────────────────────────────────────────
+
+server.tool(
+  "file_download",
+  "Download a text file from this worker's swarm namespace. Supports pagination via offset and max_bytes; defaults to first 25000 bytes. Returns hub JSON {content, offset, total_size, has_more}; if has_more is true, call again with offset = previous offset + content length.",
+  {
+    filename:  z.string().describe("Name of the file to download"),
+    offset:    z.number().optional().describe("Byte offset to start reading from (default 0)"),
+    max_bytes: z.number().optional().describe("Max bytes to return (default 25000 — respects MCP token limit)"),
+  },
+  async ({ filename, offset, max_bytes }) => {
+    if (!registeredWorkerId) {
+      return {
+        content: [{ type: "text", text: "Not registered: call swarm_register first." }],
+        isError: true,
+      };
+    }
+    const resolvedOffset = offset ?? 0;
+    const resolvedMaxBytes = max_bytes ?? 25000;
+    try {
+      const data = await hubFetch(
+        `/files/${registeredWorkerId}/${filename}?offset=${resolvedOffset}&max_bytes=${resolvedMaxBytes}`
+      );
+      if (data.error) {
+        return { content: [{ type: "text", text: `Hub error: ${data.error}` }], isError: true };
+      }
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    } catch (err) {
+      return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
+    }
+  }
+);
+
+// ── Tool: file_list ─────────────────────────────────────────────────────────
+
+server.tool(
+  "file_list",
+  "List all files stored in this worker's swarm namespace. Returns an array of file metadata objects [{id, filename, size, mimeType, uploadedAt}].",
+  {},
+  async () => {
+    if (!registeredWorkerId) {
+      return {
+        content: [{ type: "text", text: "Not registered: call swarm_register first." }],
+        isError: true,
+      };
+    }
+    try {
+      const data = await hubFetch(`/files/${registeredWorkerId}`);
+      if (data.error) {
+        return { content: [{ type: "text", text: `Hub error: ${data.error}` }], isError: true };
+      }
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    } catch (err) {
+      return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
+    }
+  }
+);
+
+// ── Tool: file_delete ───────────────────────────────────────────────────────
+
+server.tool(
+  "file_delete",
+  "Delete a file from this worker's swarm namespace by filename.",
+  {
+    filename: z.string().describe("Name of the file to delete"),
+  },
+  async ({ filename }) => {
+    if (!registeredWorkerId) {
+      return {
+        content: [{ type: "text", text: "Not registered: call swarm_register first." }],
+        isError: true,
+      };
+    }
+    try {
+      const data = await hubFetch(`/files/${registeredWorkerId}/${filename}`, { method: "DELETE" });
+      if (data.error) {
+        return { content: [{ type: "text", text: `Hub error: ${data.error}` }], isError: true };
+      }
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (err) {
       return { content: [{ type: "text", text: `Hub not reachable: ${err.message}` }], isError: true };
     }
