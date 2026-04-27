@@ -76,6 +76,7 @@ function readRawBody(req, maxBytes = 10_485_760 /* 10 MB */) {
       total += c.length;
       if (total > maxBytes) {
         rejected = true;
+        req.destroy();
         const err = new Error("Request body too large");
         err.code = "BODY_TOO_LARGE";
         return reject(err);
@@ -258,9 +259,6 @@ const routes = {
       content = await readRawBody(req);
     } catch (err) {
       if (err.code === "BODY_TOO_LARGE") {
-        // Drain remaining bytes so the socket stays open long enough to deliver the 413
-        req.resume();
-        await new Promise((r) => req.on("close", r).on("end", r));
         return json(res, 413, { error: "File too large (max 10 MB)" });
       }
       throw err;
