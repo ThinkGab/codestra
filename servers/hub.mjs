@@ -292,8 +292,7 @@ const routes = {
 
     const slice   = entry.content.slice(offset, offset + max_bytes);
     const has_more = offset + slice.length < entry.content.length;
-    const encoded = slice.toString("base64");
-    json(res, 200, { content: encoded, encoding: "base64", offset, total_size: entry.size, has_more });
+    json(res, 200, { content: slice.toString("utf8"), offset, total_size: entry.size, has_more });
   },
 
   // List all files in a swarm (per D-05)
