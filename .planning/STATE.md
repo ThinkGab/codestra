@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: MCP File Transport
 status: phase_complete
-stopped_at: Phase 7 complete — 4 MCP file tools shipped, FILE-05/06/07/08 satisfied
+stopped_at: Phase 8 context gathered — ready to plan
 last_updated: "2026-04-27T14:38:00.000Z"
-last_activity: 2026-04-27 — Phase 7 MCP Tool Wrappers executed (1 plan, E2E verified)
+last_activity: 2026-04-27 — Phase 8 Skills + Integration context gathered
 progress:
   total_phases: 3
   completed_phases: 2
