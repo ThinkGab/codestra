@@ -20,7 +20,7 @@
 
 ### Skills
 
-- [ ] **FILE-11**: `skills/file-transport/SKILL.md` creato con istruzioni per workers: quando usare file_upload/download, limiti size (testo ≤50 KB), semantica ephemeral (hub restart = file persi), pattern two-worker handoff via filename condiviso
+- [x] **FILE-11**: `skills/codestra-file-transport/SKILL.md` creato con istruzioni per workers: quando usare file_upload/download, limiti size (testo ≤50 KB), semantica ephemeral (hub restart = file persi), pattern two-worker handoff via filename condiviso
 
 ## Future Requirements
 
@@ -51,4 +51,4 @@
 | FILE-06 | Phase 7 | 07-01 | Complete |
 | FILE-07 | Phase 7 | 07-01 | Complete |
 | FILE-08 | Phase 7 | 07-01 | Complete |
-| FILE-11 | Phase 8 | — | Pending |
+| FILE-11 | Phase 8 | 08-01 | Complete |
