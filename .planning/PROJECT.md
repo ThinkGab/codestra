@@ -8,15 +8,9 @@ Codestra è un plugin per Claude Code che permette di coordinare più istanze Cl
 
 Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazione manuale — basta installare il plugin e lanciare il comando giusto.
 
-## Current Milestone: v1.2 — MCP File Transport
+## Current State: v1.2 Shipped — Planning Next Milestone
 
-**Goal:** Hub diventa canale MCP per trasferire file/artefatti tra workers, sostituendo la condivisione via filesystem locale.
-
-**Target features:**
-- Hub espone MCP tools: `file_upload`, `file_download`, `file_list`, `file_delete`
-- Worker usa MCP tools per scrivere/leggere artefatti (no disco locale condiviso)
-- File namespace per `swarm_id` (isolamento tra swarm diversi)
-- Hub gestisce storage in-memory (coerente con filosofia v1.x)
+Workers can now exchange file artefacts via 4 MCP tools backed by the hub's in-memory file store. The full stack (hub routes → MCP tools → skill doc) is complete. UAT manual integration tests deferred to a dedicated MCP session.
 
 ## Requirements
 
@@ -41,14 +35,19 @@ Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazi
 - [x] **HUB-04**: Hub fix `DELETE /worker` (endpoint non funzionante) — Validated in Phase 04: hub-fixes
 - [x] **HUB-05**: Hub inietta prompt a Claude all'avvio per distribuire carico verso workers — Validated in Phase 04: hub-fixes
 
-### Validated (v1.2 — Phase 6)
+### Validated (v1.2)
 
-- [x] **FILE-01**: Hub espone `PUT /files/:swarmId/:filename` — UUID-keyed, risponde con `{id, filename, size, mimeType, uploadedAt}` — Validated in Phase 06: hub-file-routes
-- [x] **FILE-02**: Hub espone `GET /files/:swarmId/:filename` — paginazione `?offset=N&max_bytes=M` — Validated in Phase 06: hub-file-routes
-- [x] **FILE-03**: Hub espone `GET /files/:swarmId` — lista metadata senza content — Validated in Phase 06: hub-file-routes
-- [x] **FILE-04**: Hub espone `DELETE /files/:swarmId/:filename` — `{deleted: true}` — Validated in Phase 06: hub-file-routes
-- [x] **FILE-09**: filename trattato come metadata opaca, nessun path traversal possibile — Validated in Phase 06: hub-file-routes
-- [x] **FILE-10**: `readRawBody` separato da `readBody`, 10 MB default, HTTP 413 su overflow — Validated in Phase 06: hub-file-routes
+- [x] **FILE-01**: Hub espone `PUT /files/:swarmId/:filename` — UUID-keyed, risponde con `{id, filename, size, mimeType, uploadedAt}` — Validated Phase 06
+- [x] **FILE-02**: Hub espone `GET /files/:swarmId/:filename` — paginazione `?offset=N&max_bytes=M` — Validated Phase 06
+- [x] **FILE-03**: Hub espone `GET /files/:swarmId` — lista metadata senza content — Validated Phase 06
+- [x] **FILE-04**: Hub espone `DELETE /files/:swarmId/:filename` — `{deleted: true}` — Validated Phase 06
+- [x] **FILE-09**: filename trattato come metadata opaca, nessun path traversal possibile — Validated Phase 06
+- [x] **FILE-10**: `readRawBody` separato da `readBody`, 10 MB default, HTTP 413 su overflow — Validated Phase 06
+- [x] **FILE-05**: `file_upload` MCP tool — accetta filename + content ≤50 KB, proxies PUT hub — Validated Phase 07
+- [x] **FILE-06**: `file_download` MCP tool — paginazione offset/max_bytes, restituisce content + has_more — Validated Phase 07
+- [x] **FILE-07**: `file_list` MCP tool — lista file swarm corrente — Validated Phase 07
+- [x] **FILE-08**: `file_delete` MCP tool — rimuove file nel swarm corrente — Validated Phase 07
+- [x] **FILE-11**: `skills/codestra-file-transport/SKILL.md` — when-to-use, limiti 50 KB, ephemeral semantics, two-worker handoff — Validated Phase 08
 
 ### Out of Scope
 
@@ -60,10 +59,11 @@ Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazi
 ## Context
 
 - Plugin Claude Code installato via `claude plugin marketplace add ThinkGab/codestra && claude plugin install codestra@claude-swarm`
-- Hub è un HTTP server Node.js puro (`node:http`), no framework
-- MCP bridge (`mcp-server.mjs`) comunica con hub via `fetch`
-- Attualmente solo pull (worker interroga hub per messaggi) — v1.0 aggiunge push hub→worker
-- Skill files (`skills/orchestrate/SKILL.md`, `skills/messaging/SKILL.md`) sono stub vuoti da riempire
+- Hub è un HTTP server Node.js puro (`node:http`), no framework — ~700 LOC
+- MCP bridge (`mcp-server.mjs`) comunica con hub via `fetch` — ~500 LOC, 13 tool
+- Hub bidirezionale: push hub→worker via callback_url, fallback polling
+- File transport: 4 HTTP routes hub + 4 MCP tool wrappers + skill doc
+- Skill files: `skills/orchestrate/`, `skills/messaging/`, `skills/codestra-file-transport/` (v1.2)
 
 ## Constraints
 
@@ -74,8 +74,15 @@ Ogni istanza Claude Code può orchestrare o essere orchestrata senza configurazi
 
 ## Key Decisions
 
-- **2026-04-19**: Comunicazione bidirezionale via HTTP callback (worker espone porta) — alternativa a WebSocket scartata per semplicità
-- **2026-04-19**: Skill come file `.md` nella cartella `skills/` — Claude Code le carica come contesto
+| Date | Decision | Outcome |
+|------|----------|---------|
+| 2026-04-19 | Comunicazione bidirezionale via HTTP callback (worker espone porta) | ✓ Funziona — WebSocket non necessario |
+| 2026-04-19 | Skill come file `.md` nella cartella `skills/` | ✓ Claude Code le carica come contesto |
+| 2026-04-26 | File storage in-memory (no persistenza) | ✓ Coerente con filosofia v1.x — semplice |
+| 2026-04-26 | UUID come Map key, filename come metadata opaca | ✓ No path traversal possibile |
+| 2026-04-26 | Paginazione schema incluso dal giorno 1 | ✓ Breaking change se retrofitted |
+| 2026-04-26 | readRawBody usa rejected flag + req.resume() drain | ✓ 413 consegnato senza ECONNRESET |
+| 2026-04-27 | registeredWorkerId module-level in mcp-server.mjs | ✓ Implicit namespace per tutti i file tool |
 
 ## Evolution
 
@@ -95,4 +102,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-_Last updated: 2026-04-26 — Phase 6 Hub File Routes complete (1/3 phases v1.2)_
+_Last updated: 2026-04-27 after v1.2 milestone_

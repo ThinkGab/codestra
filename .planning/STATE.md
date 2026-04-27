@@ -18,10 +18,10 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-26)
+See: .planning/PROJECT.md (updated 2026-04-27)
 
 **Core value:** Claude Code plugin enabling multiple Claude instances to coordinate as a swarm via a central hub
-**Current focus:** Milestone v1.2 — MCP File Transport
+**Current focus:** Planning milestone v1.3 — run `/gsd-new-milestone` to start
 
 ## Current Position
 
@@ -83,6 +83,23 @@ None.
 | Storage | TTL / automatic cleanup of in-memory files | Deferred | v1.2 |
 | Binary | Binary upload via two-step protocol | Deferred | v1.2 |
 | Storage | File overwrite history / versioning | Deferred | v1.2 |
+
+### UAT / Verification — acknowledged at milestone close 2026-04-27
+
+Items deferred: requires dedicated Claude Code session with Codestra MCP server active (.mcp.json loaded).
+
+| Category | Item | Status |
+|----------|------|--------|
+| uat_gap | Phase 01: 01-HUMAN-UAT.md — 3 scenari pending (slash command autocomplete + skill esecuzione) | partial |
+| uat_gap | Phase 02: 02-HUMAN-UAT.md — 2 scenari pending (HTTP server persistenza + workerPort interpolation) | partial |
+| uat_gap | Phase 03: 03-HUMAN-UAT.md — 3 scenari pending (unicast, broadcast fan-out, silent fallback) | partial |
+| uat_gap | Phase 05: 05-HUMAN-UAT.md — 1 scenario pending (orphan process WORKER-05) | partial |
+| uat_gap | Phase 08: 08-HUMAN-UAT.md — 2 scenari pending (base64 identity + namespace condiviso) | resolved |
+| verification | Phase 01: 01-VERIFICATION.md | human_needed |
+| verification | Phase 02: 02-VERIFICATION.md | human_needed |
+| verification | Phase 03: 03-VERIFICATION.md | human_needed |
+| verification | Phase 05: 05-VERIFICATION.md | human_needed |
+| verification | Phase 08: 08-VERIFICATION.md | human_needed |
 
 ## Session Continuity
 
