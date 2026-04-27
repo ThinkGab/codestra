@@ -12,7 +12,7 @@ Milestone v1.2 adds file transfer capability to the Codestra swarm. The hub gain
 
 - [x] **Phase 6: Hub File Routes** - Add readRawBody helper and four HTTP file routes to hub.mjs; UUID-keyed in-memory store; curl-testable in isolation
 - [x] **Phase 7: MCP Tool Wrappers** - Add file_upload, file_download, file_list, file_delete tools to mcp-server.mjs using hubFetch(); pagination schema included from day one
-- [ ] **Phase 8: Skills + Integration** - Create skills/file-transport/SKILL.md; validate end-to-end two-worker file handoff
+- [x] **Phase 8: Skills + Integration** - Create skills/file-transport/SKILL.md; validate end-to-end two-worker file handoff
 
 ## Phase Details
 
@@ -53,7 +53,7 @@ Plans:
   2. An integration test or documented manual test sequence demonstrates Worker A uploading a file and Worker B downloading it by filename within the same swarm, producing identical content
 **Plans**: 1 plan
 Plans:
-- [ ] 08-01-PLAN.md — skills/codestra-file-transport/SKILL.md con decision tree, esempi tool call e test manuale two-worker
+- [x] 08-01-PLAN.md — skills/codestra-file-transport/SKILL.md con decision tree, esempi tool call e test manuale two-worker
 
 ## Progress
 
@@ -64,4 +64,4 @@ Phases execute in numeric order: 6 → 7 → 8
 |-------|----------------|--------|-----------|
 | 6. Hub File Routes | 1/1 | Complete | 2026-04-26 |
 | 7. MCP Tool Wrappers | 1/1 | Complete | 2026-04-27 |
-| 8. Skills + Integration | 0/1 | In progress | - |
+| 8. Skills + Integration | 1/1 | Complete | 2026-04-27 |
