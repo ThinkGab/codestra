@@ -51,7 +51,9 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. `skills/file-transport/SKILL.md` exists and documents: when to use file_upload/download vs. message passing, the 50 KB text-only limit, ephemeral storage semantics (hub restart loses files), and the two-worker handoff pattern (producer uploads by filename, consumer downloads by same filename)
   2. An integration test or documented manual test sequence demonstrates Worker A uploading a file and Worker B downloading it by filename within the same swarm, producing identical content
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 08-01-PLAN.md — skills/codestra-file-transport/SKILL.md con decision tree, esempi tool call e test manuale two-worker
 
 ## Progress
 
@@ -62,4 +64,4 @@ Phases execute in numeric order: 6 → 7 → 8
 |-------|----------------|--------|-----------|
 | 6. Hub File Routes | 1/1 | Complete | 2026-04-26 |
 | 7. MCP Tool Wrappers | 1/1 | Complete | 2026-04-27 |
-| 8. Skills + Integration | 0/? | Not started | - |
+| 8. Skills + Integration | 0/1 | In progress | - |
