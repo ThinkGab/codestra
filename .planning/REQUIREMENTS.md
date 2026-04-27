@@ -13,10 +13,10 @@
 
 ### MCP Tools
 
-- [ ] **FILE-05**: `file_upload` tool in mcp-server.mjs — accetta `filename`, `content` (testo ≤50 KB), `mimeType` opzionale; usa swarm_id del worker come namespace; proxy a PUT hub
-- [ ] **FILE-06**: `file_download` tool — accetta `filename`, `offset` (default 0), `max_bytes` (default 25000 per rispettare limite token MCP); restituisce content + has_more per paginazione
-- [ ] **FILE-07**: `file_list` tool — restituisce lista file swarm corrente; proxy a GET /files/:swarmId
-- [ ] **FILE-08**: `file_delete` tool — accetta `filename`; rimuove file nel swarm corrente; proxy a DELETE hub
+- [x] **FILE-05**: `file_upload` tool in mcp-server.mjs — accetta `filename`, `content` (testo ≤50 KB), `mimeType` opzionale; usa swarm_id del worker come namespace; proxy a PUT hub
+- [x] **FILE-06**: `file_download` tool — accetta `filename`, `offset` (default 0), `max_bytes` (default 25000 per rispettare limite token MCP); restituisce content + has_more per paginazione
+- [x] **FILE-07**: `file_list` tool — restituisce lista file swarm corrente; proxy a GET /files/:swarmId
+- [x] **FILE-08**: `file_delete` tool — accetta `filename`; rimuove file nel swarm corrente; proxy a DELETE hub
 
 ### Skills
 
@@ -47,8 +47,8 @@
 | FILE-04 | Phase 6 | 06-01 | Complete |
 | FILE-09 | Phase 6 | 06-01 | Complete |
 | FILE-10 | Phase 6 | 06-01 | Complete |
-| FILE-05 | Phase 7 | — | Pending |
-| FILE-06 | Phase 7 | — | Pending |
-| FILE-07 | Phase 7 | — | Pending |
-| FILE-08 | Phase 7 | — | Pending |
+| FILE-05 | Phase 7 | 07-01 | Complete |
+| FILE-06 | Phase 7 | 07-01 | Complete |
+| FILE-07 | Phase 7 | 07-01 | Complete |
+| FILE-08 | Phase 7 | 07-01 | Complete |
 | FILE-11 | Phase 8 | — | Pending |
