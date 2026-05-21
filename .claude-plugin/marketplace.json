@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "codestra",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Orchestrate multiple Claude Code instances via MCP with Hub & Spoke architecture",
   "owner": {
     "name": "Gabriele Di Lelio",
@@ -11,7 +11,7 @@
     {
       "name": "codestra",
       "description": "Orchestrate multiple Claude Code instances via MCP with Hub & Spoke architecture. Spawn workers, send messages, and coordinate tasks across LAN.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Gabriele Di Lelio",
         "email": "ivandilelio@gmail.com"

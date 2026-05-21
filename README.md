@@ -221,6 +221,7 @@ codestra/
 │   ├── codestra-worker-update/   # Update worker status
 │   ├── codestra-worker-remove/   # Unregister a worker
 │   ├── codestra-worker-daemon/   # Run worker in daemon mode
+│   ├── codestra-file-transport/  # Transfer files between workers via hub
 │   └── codestra-gsd-parallel/    # Parallel GSD task dispatch
 ├── servers/
 │   ├── hub.mjs              # HTTP hub server
@@ -250,7 +251,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 <p align="center">
   <img src="assets/codestra-logo.svg" alt="Codestra" width="80"/>
   <br/>
-  <sub>Built with ❤️ by <strong>Ivan Di Lelio</strong></sub>
+  <sub>Built with ❤️ by <strong>Gabriele Di Lelio</strong></sub>
   <br/>
   <sub><em>"Every great codebase deserves a great conductor."</em></sub>
 </p>
